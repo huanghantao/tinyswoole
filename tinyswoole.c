@@ -21,7 +21,7 @@ static inline zval* tsw_zend_read_property(zend_class_entry *class_ptr, zval *ob
     return zend_read_property(class_ptr, obj, s, len, silent, &rv);
 }
 
-PHP_METHOD(tinyswoole, __construct)
+PHP_METHOD(tinyswoole_server, __construct)
 {
 	char *ip;
 	size_t ip_len;
@@ -35,7 +35,7 @@ PHP_METHOD(tinyswoole, __construct)
 	zend_update_property_long(tinyswoole_ce, getThis(), "port", sizeof("port") - 1, port);
 }
 
-PHP_METHOD(tinyswoole, start)
+PHP_METHOD(tinyswoole_server, start)
 {
 	zval *ip;
 	zval *port;
@@ -50,8 +50,8 @@ PHP_METHOD(tinyswoole, start)
 
 zend_function_entry tinyswoole_method[]=
 {
-	ZEND_ME(tinyswoole, __construct, arginfo_tinyswoole__construct, ZEND_ACC_PUBLIC)
-	ZEND_ME(tinyswoole, start, NULL, ZEND_ACC_PUBLIC)
+	ZEND_ME(tinyswoole_server, __construct, arginfo_tinyswoole__construct, ZEND_ACC_PUBLIC)
+	ZEND_ME(tinyswoole_server, start, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
