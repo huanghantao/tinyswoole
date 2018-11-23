@@ -23,16 +23,21 @@ static inline zval* tsw_zend_read_property(zend_class_entry *class_ptr, zval *ob
 
 PHP_METHOD(tinyswoole_server, __construct)
 {
-	char *ip;
-	size_t ip_len;
-	long port;
-	
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl", &ip, &ip_len, &port) == FAILURE) {
+	char *serv_host;
+	size_t host_len;
+	long serv_port;
+
+	tswServer *serv = malloc(sizeof(tswServer));
+	if (serv == NULL) {
+		tinyswoole_php_fatal_error(E_ERROR, "out of memory.");
+	}
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl", &serv_host, &host_len, &serv_port) == FAILURE) {
 		RETURN_NULL();
 	}
 
-	zend_update_property_string(tinyswoole_ce, getThis(), "ip", sizeof("ip") - 1, ip);
-	zend_update_property_long(tinyswoole_ce, getThis(), "port", sizeof("port") - 1, port);
+	zend_update_property_string(tinyswoole_ce, getThis(), "ip", sizeof("ip") - 1, serv_host);
+	zend_update_property_long(tinyswoole_ce, getThis(), "port", sizeof("port") - 1, serv_port);
 }
 
 PHP_METHOD(tinyswoole_server, start)
