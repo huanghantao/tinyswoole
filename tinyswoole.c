@@ -7,7 +7,6 @@
 #include "ext/standard/info.h"
 #include "php_tinyswoole.h"
 
-zend_class_entry *tinyswoole_ce;
 
 // arginfo ----------------------------------------------------------
 
@@ -39,6 +38,12 @@ zend_function_entry tinyswoole_server_methods[] = {
 	{NULL, NULL, NULL}
 };
 
+/**
+ * Define zend class entry
+ */
+zend_class_entry *tinyswoole_server_ce;
+
+
 static inline zval* tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent)
 {
     zval rv;
@@ -67,16 +72,16 @@ PHP_METHOD(tinyswoole_server, __construct)
 	}
 
 	server_object = getThis();
-	zend_update_property_string(tinyswoole_ce, server_object, "ip", sizeof("ip") - 1, serv_host);
-	zend_update_property_long(tinyswoole_ce, server_object, "port", sizeof("port") - 1, serv_port);
-	zend_update_property_long(tinyswoole_ce, server_object, "sock", sizeof("sock") - 1, sock);
+	zend_update_property_string(tinyswoole_server_ce, server_object, "ip", sizeof("ip") - 1, serv_host);
+	zend_update_property_long(tinyswoole_server_ce, server_object, "port", sizeof("port") - 1, serv_port);
+	zend_update_property_long(tinyswoole_server_ce, server_object, "sock", sizeof("sock") - 1, sock);
 }
 
 PHP_METHOD(tinyswoole_server, start)
 {
 	zval *sock;
 
-	sock = tsw_zend_read_property(tinyswoole_ce, getThis(), "sock", sizeof("sock") - 1, 0);
+	sock = tsw_zend_read_property(tinyswoole_server_ce, getThis(), "sock", sizeof("sock") - 1, 0);
 
 	printf("running server...\n");
 	start(Z_LVAL(*sock));
@@ -94,11 +99,11 @@ PHP_MINIT_FUNCTION(tinyswoole)
 
 	zend_class_entry ce;
 	INIT_CLASS_ENTRY(ce, "tinyswoole_server", tinyswoole_server_methods);
-	tinyswoole_ce = zend_register_internal_class(&ce TSRMLS_CC);
+	tinyswoole_server_ce = zend_register_internal_class(&ce TSRMLS_CC);
 
-	zend_declare_property_null(tinyswoole_ce, "ip", sizeof("ip") - 1, ZEND_ACC_PRIVATE);
-	zend_declare_property_null(tinyswoole_ce, "port", sizeof("port") - 1, ZEND_ACC_PRIVATE);
-	zend_declare_property_null(tinyswoole_ce, "sock", sizeof("sock") - 1, ZEND_ACC_PRIVATE);
+	zend_declare_property_null(tinyswoole_server_ce, "ip", sizeof("ip") - 1, ZEND_ACC_PRIVATE);
+	zend_declare_property_null(tinyswoole_server_ce, "port", sizeof("port") - 1, ZEND_ACC_PRIVATE);
+	zend_declare_property_null(tinyswoole_server_ce, "sock", sizeof("sock") - 1, ZEND_ACC_PRIVATE);
 
 	return SUCCESS;
 }
@@ -128,14 +133,17 @@ PHP_MINFO_FUNCTION(tinyswoole)
 	php_info_print_table_end();
 }
 
+/**
+ * The structure contains a wealth of information that tells the Zend Engine about the extension's dependencies
+ */
 zend_module_entry tinyswoole_module_entry = {
 	STANDARD_MODULE_HEADER,
-	"tinyswoole",
+	"tinyswoole", // Extension module name
 	tinyswoole_functions,
-	PHP_MINIT(tinyswoole),
-	PHP_MSHUTDOWN(tinyswoole),
-	PHP_RINIT(tinyswoole),
-	PHP_RSHUTDOWN(tinyswoole),
+	PHP_MINIT(tinyswoole), // Module initialization
+	PHP_MSHUTDOWN(tinyswoole), // Module shutdown
+	PHP_RINIT(tinyswoole), // Request initialization
+	PHP_RSHUTDOWN(tinyswoole), // Request shutdown
 	PHP_MINFO(tinyswoole),
 	PHP_TINYSWOOLE_VERSION,
 	STANDARD_MODULE_PROPERTIES
