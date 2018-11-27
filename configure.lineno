@@ -4114,7 +4114,7 @@ if test "$PHP_TINYSWOOLE" != "no"; then
 
   PHP_VAR_SUBST="$PHP_VAR_SUBST TINYSWOOLE_SHARED_LIBADD"
 
-  source_file="tinyswoole_server.c src/server.c"
+  source_file="tinyswoole_server.c src/network/server.c src/socket.c"
 
   ext_builddir=.
   ext_srcdir=$abs_srcdir

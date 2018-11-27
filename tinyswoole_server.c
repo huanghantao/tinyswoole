@@ -26,31 +26,36 @@ PHP_METHOD(tinyswoole_server, __construct)
 	char *serv_host;
 	size_t host_len;
 	long serv_port;
+	zval *server_object;
+	long sock_type = TSW_SOCK_TCP;
+	int sock;
 
-	tswServer *serv = malloc(sizeof(tswServer));
-	if (serv == NULL) {
-		tinyswoole_php_fatal_error(E_ERROR, "out of memory.");
-	}
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl", &serv_host, &host_len, &serv_port) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl|l", &serv_host, &host_len, &serv_port, &sock_type) == FAILURE) {
 		RETURN_NULL();
 	}
 
-	zend_update_property_string(tinyswoole_ce, getThis(), "ip", sizeof("ip") - 1, serv_host);
-	zend_update_property_long(tinyswoole_ce, getThis(), "port", sizeof("port") - 1, serv_port);
+	sock = tswSocket_create(sock_type);
+	if (sock < 0) {
+		RETURN_NULL();
+	}
+	if (tswSocket_bind(sock, sock_type, serv_host, serv_port) < 0) {
+		RETURN_NULL();
+	}
+
+	server_object = getThis();
+	zend_update_property_string(tinyswoole_ce, server_object, "ip", sizeof("ip") - 1, serv_host);
+	zend_update_property_long(tinyswoole_ce, server_object, "port", sizeof("port") - 1, serv_port);
+	zend_update_property_long(tinyswoole_ce, server_object, "sock", sizeof("sock") - 1, sock);
 }
 
 PHP_METHOD(tinyswoole_server, start)
 {
-	zval *ip;
-	zval *port;
+	zval *sock;
+
+	sock = tsw_zend_read_property(tinyswoole_ce, getThis(), "sock", sizeof("sock") - 1, 0);
 
 	printf("running server...\n");
-
-	ip = tsw_zend_read_property(tinyswoole_ce, getThis(), "ip", sizeof("ip") - 1, 0);
-	port = tsw_zend_read_property(tinyswoole_ce, getThis(), "port", sizeof("port") - 1, 0);
-
-	server(Z_STRVAL(*ip), Z_LVAL(*port));
+	start(Z_LVAL(*sock));
 }
 
 zend_function_entry tinyswoole_method[]=
@@ -68,6 +73,7 @@ PHP_MINIT_FUNCTION(tinyswoole)
 
 	zend_declare_property_null(tinyswoole_ce, "ip", sizeof("ip") - 1, ZEND_ACC_PRIVATE);
 	zend_declare_property_null(tinyswoole_ce, "port", sizeof("port") - 1, ZEND_ACC_PRIVATE);
+	zend_declare_property_null(tinyswoole_ce, "sock", sizeof("sock") - 1, ZEND_ACC_PRIVATE);
 
 	return SUCCESS;
 }
