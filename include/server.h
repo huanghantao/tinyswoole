@@ -5,4 +5,6 @@ struct _tswServer {
 
 };
 
+int start(int sock);
+
 #endif /* TSW_SERVER_H_ */

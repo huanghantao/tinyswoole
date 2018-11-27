@@ -67,6 +67,12 @@ zend_function_entry tinyswoole_method[]=
 
 PHP_MINIT_FUNCTION(tinyswoole)
 {
+	/**
+     * socket type
+     */
+    REGISTER_LONG_CONSTANT("TSWOOLE_SOCK_TCP", TSW_SOCK_TCP, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("TSWOOLE_SOCK_UDP", TSW_SOCK_UDP, CONST_CS | CONST_PERSISTENT);
+
 	zend_class_entry ce;
 	INIT_CLASS_ENTRY(ce, "tinyswoole_server", tinyswoole_method);
 	tinyswoole_ce = zend_register_internal_class(&ce TSRMLS_CC);
