@@ -7,7 +7,7 @@ a tiny [swoole](https://github.com/swoole/swoole-src)
 ```php
 <?php
 
-$serv = new tinyswoole_server('127.0.0.1', 9501, TSWOOLE_SOCK_TCP);
+$serv = new TinySwoole\Server('127.0.0.1', 9501, TSWOOLE_TCP);
 $serv->start();
 ```
 
