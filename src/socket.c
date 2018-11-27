@@ -13,6 +13,7 @@ int tswSocket_create(int type)
         _domain = AF_INET;
         _type = SOCK_DGRAM;
     } else {
+        tswWarn("unknown socket type [%d]", type);
         return TSW_ERR;
     }
 

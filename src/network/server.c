@@ -7,10 +7,12 @@
 #include <string.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include "tswoole_config.h"
 
 
 #define LISTENQ 10
 #define MAX_BUF_SIZE 1024
+
 
 int start(int sock)
 {
