@@ -91,14 +91,21 @@ PHP_METHOD(tinyswoole_server, start)
 
 PHP_MINIT_FUNCTION(tinyswoole)
 {
-	/**
+    /**
      * socket type
      */
     REGISTER_LONG_CONSTANT("TSWOOLE_SOCK_TCP", TSW_SOCK_TCP, CONST_CS | CONST_PERSISTENT);
-	REGISTER_LONG_CONSTANT("TSWOOLE_SOCK_UDP", TSW_SOCK_UDP, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("TSWOOLE_SOCK_UDP", TSW_SOCK_UDP, CONST_CS | CONST_PERSISTENT);
+
+    /**
+     * socket type
+     */
+    REGISTER_LONG_CONSTANT("TSWOOLE_TCP", TSW_SOCK_TCP, CONST_CS | CONST_PERSISTENT);
+    REGISTER_LONG_CONSTANT("TSWOOLE_UDP", TSW_SOCK_UDP, CONST_CS | CONST_PERSISTENT);
 
 	zend_class_entry ce;
-	INIT_CLASS_ENTRY(ce, "tinyswoole_server", tinyswoole_server_methods);
+	// INIT_CLASS_ENTRY(ce, "tinyswoole_server", tinyswoole_server_methods);
+    INIT_NS_CLASS_ENTRY(ce, "TinySwoole", "Server", tinyswoole_server_methods);
 	tinyswoole_server_ce = zend_register_internal_class(&ce TSRMLS_CC);
 
 	zend_declare_property_null(tinyswoole_server_ce, "ip", sizeof("ip") - 1, ZEND_ACC_PRIVATE);
