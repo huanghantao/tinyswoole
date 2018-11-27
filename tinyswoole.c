@@ -9,11 +9,35 @@
 
 zend_class_entry *tinyswoole_ce;
 
+// arginfo ----------------------------------------------------------
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_tinyswoole__construct, 0, 0, 2)
-	ZEND_ARG_INFO(0, ip)
-    ZEND_ARG_INFO(0, port)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_tinyswoole_void, 0, 0, 0)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_tinyswoole__construct, 0, 0, 2) // The last parameter is the minimum number of required parameters.
+	ZEND_ARG_INFO(0, ip) // Whether the first parameter is a reference. 1 yes, 0 is not
+    ZEND_ARG_INFO(0, port)
+	ZEND_ARG_INFO(0, sock_type)
+ZEND_END_ARG_INFO()
+
+// arginfo end ----------------------------------------------------------
+
+/**
+ * Register the function pointer to the Zend Engine
+ */
+const zend_function_entry tinyswoole_functions[] = {
+	// PHP_FE(tinyswoole_version, arginfo_tinyswoole_void)
+	PHP_FE_END
+};
+
+/**
+ * Register function pointers of class swoole_server to the Zend Engine
+ */
+zend_function_entry tinyswoole_server_methods[] = {
+	ZEND_ME(tinyswoole_server, __construct, arginfo_tinyswoole__construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR) // ZEND_ACC_CTOR is used to declare that this method is a constructor of this class.
+	ZEND_ME(tinyswoole_server, start, NULL, ZEND_ACC_PUBLIC)
+	{NULL, NULL, NULL}
+};
 
 static inline zval* tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent)
 {
@@ -58,12 +82,7 @@ PHP_METHOD(tinyswoole_server, start)
 	start(Z_LVAL(*sock));
 }
 
-zend_function_entry tinyswoole_method[]=
-{
-	ZEND_ME(tinyswoole_server, __construct, arginfo_tinyswoole__construct, ZEND_ACC_PUBLIC)
-	ZEND_ME(tinyswoole_server, start, NULL, ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
-};
+
 
 PHP_MINIT_FUNCTION(tinyswoole)
 {
@@ -74,7 +93,7 @@ PHP_MINIT_FUNCTION(tinyswoole)
 	REGISTER_LONG_CONSTANT("TSWOOLE_SOCK_UDP", TSW_SOCK_UDP, CONST_CS | CONST_PERSISTENT);
 
 	zend_class_entry ce;
-	INIT_CLASS_ENTRY(ce, "tinyswoole_server", tinyswoole_method);
+	INIT_CLASS_ENTRY(ce, "tinyswoole_server", tinyswoole_server_methods);
 	tinyswoole_ce = zend_register_internal_class(&ce TSRMLS_CC);
 
 	zend_declare_property_null(tinyswoole_ce, "ip", sizeof("ip") - 1, ZEND_ACC_PRIVATE);
@@ -108,10 +127,6 @@ PHP_MINFO_FUNCTION(tinyswoole)
 	php_info_print_table_header(2, "tinyswoole support", "enabled");
 	php_info_print_table_end();
 }
-
-const zend_function_entry tinyswoole_functions[] = {
-	PHP_FE_END
-};
 
 zend_module_entry tinyswoole_module_entry = {
 	STANDARD_MODULE_HEADER,
