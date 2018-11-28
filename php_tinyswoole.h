@@ -67,6 +67,8 @@ ZEND_TSRMLS_CACHE_EXTERN()
 
 #define tinyswoole_php_fatal_error(level, fmt_str, ...)   php_error_docref(NULL TSRMLS_CC, level, fmt_str, ##__VA_ARGS__)
 
+zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent);
+
 PHP_METHOD(tinyswoole_server, __construct);
 PHP_METHOD(tinyswoole_server, start);
 
