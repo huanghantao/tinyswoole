@@ -33,8 +33,8 @@ const zend_function_entry tinyswoole_functions[] = {
  * Register function pointers of class swoole_server to the Zend Engine
  */
 zend_function_entry tinyswoole_server_methods[] = {
-	ZEND_ME(tinyswoole_server, __construct, arginfo_tinyswoole_server__construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR) // ZEND_ACC_CTOR is used to declare that this method is a constructor of this class.
-	ZEND_ME(tinyswoole_server, start, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(tinyswoole_server, __construct, arginfo_tinyswoole_server__construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR) // ZEND_ACC_CTOR is used to declare that this method is a constructor of this class.
+	PHP_ME(tinyswoole_server, start, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
