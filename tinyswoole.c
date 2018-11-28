@@ -13,7 +13,7 @@
 ZEND_BEGIN_ARG_INFO_EX(arginfo_tinyswoole_void, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_tinyswoole__construct, 0, 0, 2) // The last parameter is the minimum number of required parameters.
+ZEND_BEGIN_ARG_INFO_EX(arginfo_tinyswoole_server__construct, 0, 0, 2) // The last parameter is the minimum number of required parameters.
 	ZEND_ARG_INFO(0, ip) // Whether the first parameter is a reference. 1 yes, 0 is not
     ZEND_ARG_INFO(0, port)
 	ZEND_ARG_INFO(0, sock_type)
@@ -33,7 +33,7 @@ const zend_function_entry tinyswoole_functions[] = {
  * Register function pointers of class swoole_server to the Zend Engine
  */
 zend_function_entry tinyswoole_server_methods[] = {
-	ZEND_ME(tinyswoole_server, __construct, arginfo_tinyswoole__construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR) // ZEND_ACC_CTOR is used to declare that this method is a constructor of this class.
+	ZEND_ME(tinyswoole_server, __construct, arginfo_tinyswoole_server__construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR) // ZEND_ACC_CTOR is used to declare that this method is a constructor of this class.
 	ZEND_ME(tinyswoole_server, start, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
@@ -42,7 +42,7 @@ zend_function_entry tinyswoole_server_methods[] = {
  * Define zend class entry
  */
 zend_class_entry tinyswoole_server_ce;
-zend_class_entry *tinyswoole_server_ce_ptr;
+zend_class_entry *tinyswoole_server_ce_ptr; // Without thread safety protection
 
 
 static inline zval* tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent)
@@ -104,7 +104,7 @@ PHP_MINIT_FUNCTION(tinyswoole)
 
 	// INIT_CLASS_ENTRY(ce, "tinyswoole_server", tinyswoole_server_methods);
     INIT_NS_CLASS_ENTRY(tinyswoole_server_ce, "TinySwoole", "Server", tinyswoole_server_methods);
-	tinyswoole_server_ce_ptr = zend_register_internal_class(&tinyswoole_server_ce TSRMLS_CC);
+	tinyswoole_server_ce_ptr = zend_register_internal_class(&tinyswoole_server_ce TSRMLS_CC); // Registered in the Zend Engine
 
 	zend_declare_property_null(tinyswoole_server_ce_ptr, "ip", sizeof("ip") - 1, ZEND_ACC_PRIVATE);
 	zend_declare_property_null(tinyswoole_server_ce_ptr, "port", sizeof("port") - 1, ZEND_ACC_PRIVATE);
