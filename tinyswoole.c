@@ -106,9 +106,9 @@ PHP_MINIT_FUNCTION(tinyswoole)
     INIT_NS_CLASS_ENTRY(tinyswoole_server_ce, "TinySwoole", "Server", tinyswoole_server_methods);
 	tinyswoole_server_ce_ptr = zend_register_internal_class(&tinyswoole_server_ce TSRMLS_CC); // Registered in the Zend Engine
 
-	zend_declare_property_null(tinyswoole_server_ce_ptr, "ip", sizeof("ip") - 1, ZEND_ACC_PRIVATE);
-	zend_declare_property_null(tinyswoole_server_ce_ptr, "port", sizeof("port") - 1, ZEND_ACC_PRIVATE);
-	zend_declare_property_null(tinyswoole_server_ce_ptr, "sock", sizeof("sock") - 1, ZEND_ACC_PRIVATE);
+	zend_declare_property_null(tinyswoole_server_ce_ptr, ZEND_STRL("ip"), ZEND_ACC_PRIVATE);
+	zend_declare_property_null(tinyswoole_server_ce_ptr, ZEND_STRL("port"), ZEND_ACC_PRIVATE);
+	zend_declare_property_null(tinyswoole_server_ce_ptr, ZEND_STRL("sock"), ZEND_ACC_PRIVATE);
 
 	return SUCCESS;
 }
