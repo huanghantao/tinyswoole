@@ -67,12 +67,25 @@ ZEND_TSRMLS_CACHE_EXTERN()
 
 #define tinyswoole_php_fatal_error(level, fmt_str, ...)   php_error_docref(NULL TSRMLS_CC, level, fmt_str, ##__VA_ARGS__)
 
+enum php_tinyswoole_server_callback_type {
+    TSW_SERVER_CB_onStart,
+    TSW_SERVER_CB_onConnect,
+    TSW_SERVER_CB_onReceive,
+    TSW_SERVER_CB_onClose,
+};
+
+#define PHP_SERVER_CALLBACK_NUM             (TSW_SERVER_CB_onClose+1)
+
 extern zend_class_entry *tinyswoole_server_ce_ptr;
 
 zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent);
+void php_tswoole_register_callback(tswServer *serv);
+void php_tswoole_onStart(tswServer *);
+void php_tswoole_onConnect(tswServer *);
 
 PHP_METHOD(tinyswoole_server, __construct);
 PHP_METHOD(tinyswoole_server, start);
+PHP_METHOD(tinyswoole_server, on);
 
 #endif	/* PHP_TINYSWOOLE_H */
 
