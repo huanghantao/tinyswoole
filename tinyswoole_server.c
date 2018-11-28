@@ -8,8 +8,6 @@
 #include "php_tinyswoole.h"
 
 
-extern zend_class_entry *tinyswoole_server_ce_ptr; // Without thread safety protection
-
 PHP_METHOD(tinyswoole_server, __construct)
 {
 	char *serv_host;
