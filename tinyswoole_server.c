@@ -102,13 +102,16 @@ PHP_METHOD(tinyswoole_server, start)
 	php_tswoole_register_callback(serv);
 	serv->onStart();
 
-	start(Z_LVAL(*sock));
+	start(serv, Z_LVAL(*sock));
 }
 
 void php_tswoole_register_callback(tswServer *serv)
 {
 	if (php_tsw_server_callbacks[TSW_SERVER_CB_onStart] != NULL) {
 		serv->onStart = php_tswoole_onStart;
+	}
+	if (php_tsw_server_callbacks[TSW_SERVER_CB_onConnect] != NULL) {
+		serv->onConnect = php_tswoole_onConnect;
 	}
 }
 
@@ -117,4 +120,11 @@ void php_tswoole_onStart(void)
 	zval  retval;
 
 	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onStart], &retval, 0, NULL, 0, NULL);
+}
+
+void php_tswoole_onConnect(void)
+{
+	zval  retval;
+
+	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onConnect], &retval, 0, NULL, 0, NULL);
 }

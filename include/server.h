@@ -10,6 +10,6 @@ struct _tswServer {
     void (*onClose)(void);
 };
 
-int start(int sock);
+int start(tswServer *serv, int sock);
 
 #endif /* TSW_SERVER_H_ */

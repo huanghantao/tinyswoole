@@ -8,13 +8,14 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include "tswoole_config.h"
+#include "../include/server.h"
 
 
 #define LISTENQ 10
 #define MAX_BUF_SIZE 1024
 
 
-int start(int sock)
+int start(tswServer *serv, int sock)
 {
 	int connfd;
 	int n;
@@ -27,13 +28,16 @@ int start(int sock)
 
     for (;;) {
     	connfd = accept(sock, (struct sockaddr *)&cliaddr, &len);
-    	for (;;) {
-			n = read(connfd, buffer, MAX_BUF_SIZE);
-			if (n <= 0) {
-				close(connfd);
-				break;
+		if (connfd > 0) {
+			serv->onConnect();
+			for (;;) {
+				n = read(connfd, buffer, MAX_BUF_SIZE);
+				if (n <= 0) {
+					close(connfd);
+					break;
+				}
+				write(connfd, buffer, n);  
 			}
-			write(connfd, buffer, n);  
 		}
 	}
 
