@@ -80,8 +80,8 @@ extern zend_class_entry *tinyswoole_server_ce_ptr;
 
 zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent);
 void php_tswoole_register_callback(tswServer *serv);
-void php_tswoole_onStart(tswServer *);
-void php_tswoole_onConnect(tswServer *);
+void php_tswoole_onStart(void);
+void php_tswoole_onConnect(void);
 
 PHP_METHOD(tinyswoole_server, __construct);
 PHP_METHOD(tinyswoole_server, start);

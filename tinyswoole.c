@@ -50,12 +50,6 @@ zend_function_entry tinyswoole_server_methods[] = {
 zend_class_entry tinyswoole_server_ce;
 zend_class_entry *tinyswoole_server_ce_ptr; // Without thread safety protection
 
-zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent)
-{
-    zval rv;
-    return zend_read_property(class_ptr, obj, s, len, silent, &rv);
-}
-
 PHP_MINIT_FUNCTION(tinyswoole)
 {
     /**
@@ -121,6 +115,12 @@ zend_module_entry tinyswoole_module_entry = {
 	PHP_TINYSWOOLE_VERSION,
 	STANDARD_MODULE_PROPERTIES
 };
+
+zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent)
+{
+    zval rv;
+    return zend_read_property(class_ptr, obj, s, len, silent, &rv);
+}
 
 #ifdef COMPILE_DL_TINYSWOOLE
 #ifdef ZTS

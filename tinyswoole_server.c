@@ -93,14 +93,14 @@ PHP_METHOD(tinyswoole_server, start)
 	tswServer *serv;
 
 	sock = tsw_zend_read_property(tinyswoole_server_ce_ptr, getThis(), "sock", sizeof("sock") - 1, 0);
-	serv = malloc(sizeof(tswServer));
+	serv = (tswServer *)malloc(sizeof(tswServer));
 	if (serv == NULL) {
 		tinyswoole_php_fatal_error(E_ERROR, "malloc tswServer error");
 		return;
 	}
 
 	php_tswoole_register_callback(serv);
-
+	serv->onStart();
 
 	start(Z_LVAL(*sock));
 }
@@ -112,8 +112,9 @@ void php_tswoole_register_callback(tswServer *serv)
     }
 }
 
-void php_tswoole_onStart(tswServer *serv)
+void php_tswoole_onStart(void)
 {
-	printf("server is running...\n");
-}
+    zval  retval;
 
+	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onStart], &retval, 0, NULL, 0, NULL);
+}

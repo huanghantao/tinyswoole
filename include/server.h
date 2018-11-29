@@ -4,10 +4,10 @@
 #include "tinyswoole.h"
 
 struct _tswServer {
-    void (*onStart)(tswServer *serv);
-    void (*onConnect)(tswServer *serv);
-    int (*onReceive)(tswServer *);
-    void (*onClose)(tswServer *serv);
+    void (*onStart)(void);
+    void (*onConnect)(void);
+    void (*onReceive)(void);
+    void (*onClose)(void);
 };
 
 int start(int sock);
