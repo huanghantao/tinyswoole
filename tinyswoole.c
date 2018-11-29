@@ -15,13 +15,13 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_tinyswoole_server__construct, 0, 0, 2) // The last parameter is the minimum number of required parameters.
 	ZEND_ARG_INFO(0, ip) // Whether the first parameter is a reference. 1 yes, 0 is not
-    ZEND_ARG_INFO(0, port)
+	ZEND_ARG_INFO(0, port)
 	ZEND_ARG_INFO(0, sock_type)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_tinyswoole_server_on, 0, 0, 2)
-    ZEND_ARG_INFO(0, event_name)
-    ZEND_ARG_INFO(0, callback)
+	ZEND_ARG_INFO(0, event_name)
+	ZEND_ARG_INFO(0, callback)
 ZEND_END_ARG_INFO()
 
 // arginfo end ----------------------------------------------------------
@@ -61,11 +61,11 @@ PHP_MINIT_FUNCTION(tinyswoole)
     /**
      * socket type
      */
-    REGISTER_LONG_CONSTANT("TSWOOLE_TCP", TSW_SOCK_TCP, CONST_CS | CONST_PERSISTENT);
-    REGISTER_LONG_CONSTANT("TSWOOLE_UDP", TSW_SOCK_UDP, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("TSWOOLE_TCP", TSW_SOCK_TCP, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("TSWOOLE_UDP", TSW_SOCK_UDP, CONST_CS | CONST_PERSISTENT);
 
 	// INIT_CLASS_ENTRY(ce, "tinyswoole_server", tinyswoole_server_methods);
-    INIT_NS_CLASS_ENTRY(tinyswoole_server_ce, "TinySwoole", "Server", tinyswoole_server_methods);
+	INIT_NS_CLASS_ENTRY(tinyswoole_server_ce, "TinySwoole", "Server", tinyswoole_server_methods);
 	tinyswoole_server_ce_ptr = zend_register_internal_class(&tinyswoole_server_ce TSRMLS_CC); // Registered in the Zend Engine
 
 	zend_declare_property_null(tinyswoole_server_ce_ptr, ZEND_STRL("ip"), ZEND_ACC_PRIVATE);

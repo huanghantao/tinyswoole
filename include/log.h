@@ -7,12 +7,12 @@
 
 enum tswLog_level
 {
-    TSW_LOG_DEBUG = 0,
-    TSW_LOG_TRACE,
-    TSW_LOG_INFO,
-    TSW_LOG_NOTICE,
-    TSW_LOG_WARNING,
-    TSW_LOG_ERROR,
+	TSW_LOG_DEBUG = 0,
+	TSW_LOG_TRACE,
+	TSW_LOG_INFO,
+	TSW_LOG_NOTICE,
+	TSW_LOG_WARNING,
+	TSW_LOG_ERROR,
 };
 
 void tswLog_put(int level, char *cnt);

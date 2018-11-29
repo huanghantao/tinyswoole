@@ -58,7 +58,7 @@ PHP_METHOD(tinyswoole_server, on)
 	};
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz", &name, &callable) == FAILURE) {
-        return;
+		return;
     }
 
 	func_cache = emalloc(sizeof(zend_fcall_info_cache));
@@ -108,13 +108,13 @@ PHP_METHOD(tinyswoole_server, start)
 void php_tswoole_register_callback(tswServer *serv)
 {
 	if (php_tsw_server_callbacks[TSW_SERVER_CB_onStart] != NULL) {
-        serv->onStart = php_tswoole_onStart;
-    }
+		serv->onStart = php_tswoole_onStart;
+	}
 }
 
 void php_tswoole_onStart(void)
 {
-    zval  retval;
+	zval  retval;
 
 	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onStart], &retval, 0, NULL, 0, NULL);
 }

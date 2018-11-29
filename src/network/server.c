@@ -16,26 +16,26 @@
 
 int start(int sock)
 {
-    int connfd;
-    int n;
-    socklen_t len;
-    struct sockaddr_in cliaddr;
-    char buffer[MAX_BUF_SIZE];
+	int connfd;
+	int n;
+	socklen_t len;
+	struct sockaddr_in cliaddr;
+	char buffer[MAX_BUF_SIZE];
 
-    listen(sock, LISTENQ);
-    len = sizeof(cliaddr);
+	listen(sock, LISTENQ);
+	len = sizeof(cliaddr);
 
     for (;;) {
-        connfd = accept(sock, (struct sockaddr *)&cliaddr, &len);
-        for (;;) {
-            n = read(connfd, buffer, MAX_BUF_SIZE);
-            if (n <= 0) {
-                close(connfd);
-                break;
-            }
-            write(connfd, buffer, n);  
-        }
-    }
+    	connfd = accept(sock, (struct sockaddr *)&cliaddr, &len);
+    	for (;;) {
+			n = read(connfd, buffer, MAX_BUF_SIZE);
+			if (n <= 0) {
+				close(connfd);
+				break;
+			}
+			write(connfd, buffer, n);  
+		}
+	}
 
-    close(sock);
+	close(sock);
 }
