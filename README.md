@@ -12,7 +12,7 @@ $serv->start();
 
 ```
 
-## Increase the start event callback
+## Increase the server start event callback
 
 ```php
 <?php
@@ -24,6 +24,22 @@ function onStart()
 
 $serv = new TinySwoole\Server('127.0.0.1', 9501, TSWOOLE_TCP);
 $serv->on("Start", "onStart");
+$serv->start();
+
+```
+
+## Increase the server connect event callback
+
+```php
+<?php
+
+function onConnect()
+{
+    print_r("a client is connected" . PHP_EOL);
+}
+
+$serv = new TinySwoole\Server('127.0.0.1', 9501, TSWOOLE_TCP);
+$serv->on("Connect", "onConnect");
 $serv->start();
 
 ```
