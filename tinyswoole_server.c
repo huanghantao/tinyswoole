@@ -16,9 +16,10 @@ PHP_METHOD(tinyswoole_server, __construct)
 	char *serv_host;
 	size_t host_len;
 	long serv_port;
-	zval *server_object;
 	long sock_type = TSW_SOCK_TCP;
 	int sock;
+
+	server_object = getThis(); // server_object is a global variable
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl|l", &serv_host, &host_len, &serv_port, &sock_type) == FAILURE) {
 		RETURN_NULL();
@@ -32,7 +33,6 @@ PHP_METHOD(tinyswoole_server, __construct)
 		RETURN_NULL();
 	}
 
-	server_object = getThis();
 	zend_update_property_string(tinyswoole_server_ce_ptr, server_object, "ip", sizeof("ip") - 1, serv_host);
 	zend_update_property_long(tinyswoole_server_ce_ptr, server_object, "port", sizeof("port") - 1, serv_port);
 	zend_update_property_long(tinyswoole_server_ce_ptr, server_object, "sock", sizeof("sock") - 1, sock);
@@ -43,8 +43,6 @@ PHP_METHOD(tinyswoole_server, on)
 	int i;
 	char property_name[128]; // on + event name eg onConnect onReceive
 	int property_name_len = 0;
-
-	zval *server_object;
 
 	zval *name;
 	zval *callable;
@@ -67,7 +65,6 @@ PHP_METHOD(tinyswoole_server, on)
 		return;
 	}
 
-	server_object = getThis();
 	memcpy(property_name, "on", 2);
 	for (i = 0; i < PHP_SERVER_CALLBACK_NUM; i++) {
 		// Update the properties of the server class if the callback function event name of the first parameter matches
@@ -105,6 +102,20 @@ PHP_METHOD(tinyswoole_server, start)
 	start(serv, Z_LVAL(*sock));
 }
 
+PHP_METHOD(tinyswoole_server, send)
+{
+	zval *zfd;
+	zval *zdata;
+	int ret;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz", &zfd, &zdata) == FAILURE) {
+		return;
+    }
+	ret = tswServer_tcp_send(NULL, Z_LVAL(*zfd), Z_STRVAL(*zdata), Z_STRLEN(*zdata));
+
+	RETURN_LONG(ret);
+}
+
 void php_tswoole_register_callback(tswServer *serv)
 {
 	if (php_tsw_server_callbacks[TSW_SERVER_CB_onStart] != NULL) {
@@ -112,6 +123,9 @@ void php_tswoole_register_callback(tswServer *serv)
 	}
 	if (php_tsw_server_callbacks[TSW_SERVER_CB_onConnect] != NULL) {
 		serv->onConnect = php_tswoole_onConnect;
+	}
+	if (php_tsw_server_callbacks[TSW_SERVER_CB_onReceive] != NULL) {
+		serv->onReceive = php_tswoole_onReceive;
 	}
 }
 
@@ -136,4 +150,23 @@ void php_tswoole_onConnect(int fd)
 	args[0] = *zfd;
 
 	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onConnect], &retval, 1, args, 0, NULL);
+}
+
+void php_tswoole_onReceive(tswServer *serv, int fd, char *data)
+{
+	zval *zfd;
+	zval *zdata;
+	zval retval;
+	zval args[3];
+
+	TSW_MAKE_STD_ZVAL(zfd);
+	ZVAL_LONG(zfd, fd);
+	TSW_MAKE_STD_ZVAL(zdata);
+	ZVAL_STRINGL(zdata, data, sizeof(data) - 1);
+
+	args[0] = *server_object;
+	args[1] = *zfd;
+	args[2] = *zdata;
+
+	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onReceive], &retval, 3, args, 0, NULL);
 }

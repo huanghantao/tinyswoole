@@ -24,6 +24,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_tinyswoole_server_on, 0, 0, 2)
 	ZEND_ARG_INFO(0, callback)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_tinyswoole_server_send, 0, 0, 2)
+	ZEND_ARG_INFO(0, fd)
+	ZEND_ARG_INFO(0, data)
+ZEND_END_ARG_INFO()
+
 // arginfo end ----------------------------------------------------------
 
 /**
@@ -41,6 +46,7 @@ zend_function_entry tinyswoole_server_methods[] = {
 	PHP_ME(tinyswoole_server, __construct, arginfo_tinyswoole_server__construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR) // ZEND_ACC_CTOR is used to declare that this method is a constructor of this class.
 	PHP_ME(tinyswoole_server, on, arginfo_tinyswoole_server_on, ZEND_ACC_PUBLIC)
 	PHP_ME(tinyswoole_server, start, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(tinyswoole_server, send, arginfo_tinyswoole_server_send, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 

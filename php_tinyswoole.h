@@ -77,16 +77,19 @@ enum php_tinyswoole_server_callback_type {
 
 #define PHP_SERVER_CALLBACK_NUM             (TSW_SERVER_CB_onClose+1)
 
+zval *server_object;
 extern zend_class_entry *tinyswoole_server_ce_ptr;
 
 zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent);
 void php_tswoole_register_callback(tswServer *serv);
 void php_tswoole_onStart(void);
 void php_tswoole_onConnect(int fd);
+void php_tswoole_onReceive(tswServer *serv, int fd, char *data);
 
 PHP_METHOD(tinyswoole_server, __construct);
 PHP_METHOD(tinyswoole_server, start);
 PHP_METHOD(tinyswoole_server, on);
+PHP_METHOD(tinyswoole_server, send);
 PHP_FUNCTION(call_function);
 
 #endif	/* PHP_TINYSWOOLE_H */

@@ -32,14 +32,21 @@ int start(tswServer *serv, int sock)
 			serv->onConnect(connfd);
 			for (;;) {
 				n = read(connfd, buffer, MAX_BUF_SIZE);
+				
 				if (n <= 0) {
 					close(connfd);
 					break;
 				}
-				write(connfd, buffer, n);  
+				buffer[n] = 0;
+				serv->onReceive(serv, connfd, buffer);
 			}
 		}
 	}
 
 	close(sock);
+}
+
+int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length)
+{
+	return send(fd, data, length, 0);
 }
