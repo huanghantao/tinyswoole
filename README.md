@@ -44,6 +44,29 @@ $serv->start();
 
 ```
 
+## Increase the server receive event callback
+
+```php
+<?php
+
+function onReceive($serv, $fd, $data)
+{
+    print_r("receive data from client[{$fd}]: {$data}");
+    $serv->send($fd, "hello client");
+}
+
+$serv = new TinySwoole\Server('127.0.0.1', 9501, TSWOOLE_TCP);
+$serv->on("Receive", "onReceive");
+$serv->start();
+
+```
+
+## send data to client
+
+```php
+$serv->send($fd, "hello world");
+```
+
 ## Install from source
 
 ```shell
