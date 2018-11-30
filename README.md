@@ -76,3 +76,6 @@ phpize && \
 make && make install
 ```
 
+## Welcome
+
+QQ群：942858122
