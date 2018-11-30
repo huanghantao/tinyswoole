@@ -29,7 +29,7 @@ int start(tswServer *serv, int sock)
     for (;;) {
     	connfd = accept(sock, (struct sockaddr *)&cliaddr, &len);
 		if (connfd > 0) {
-			serv->onConnect();
+			serv->onConnect(connfd);
 			for (;;) {
 				n = read(connfd, buffer, MAX_BUF_SIZE);
 				if (n <= 0) {

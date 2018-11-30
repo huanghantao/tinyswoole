@@ -122,9 +122,18 @@ void php_tswoole_onStart(void)
 	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onStart], &retval, 0, NULL, 0, NULL);
 }
 
-void php_tswoole_onConnect(void)
+/**
+ * @fd: connection socket
+ */
+void php_tswoole_onConnect(int fd)
 {
+	zval *zfd;
 	zval  retval;
+	zval args[1];
 
-	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onConnect], &retval, 0, NULL, 0, NULL);
+	TSW_MAKE_STD_ZVAL(zfd); // Let zfd point to a piece of memory in the stack
+	ZVAL_LONG(zfd, fd); // Before using ZVAL_LONG, you need to allocate memory first.
+	args[0] = *zfd;
+
+	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onConnect], &retval, 1, args, 0, NULL);
 }

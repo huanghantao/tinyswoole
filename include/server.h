@@ -5,7 +5,7 @@
 
 struct _tswServer {
     void (*onStart)(void);
-    void (*onConnect)(void);
+    void (*onConnect)(int fd);
     void (*onReceive)(void);
     void (*onClose)(void);
 };

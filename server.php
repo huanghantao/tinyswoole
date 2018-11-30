@@ -5,9 +5,9 @@ function onStart()
     print_r("server is running..." . PHP_EOL);
 }
 
-function onConnect()
+function onConnect($fd)
 {
-    print_r("a client is connected" . PHP_EOL);
+    print_r("client[{$fd}] is connected" . PHP_EOL);
 }
 
 $serv = new TinySwoole\Server('127.0.0.1', 9501, TSWOOLE_TCP);
