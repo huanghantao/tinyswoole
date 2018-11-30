@@ -52,7 +52,6 @@ $serv->start();
 function onReceive($serv, $fd, $data)
 {
     print_r("receive data from client[{$fd}]: {$data}");
-    $serv->send($fd, "hello client");
 }
 
 $serv = new TinySwoole\Server('127.0.0.1', 9501, TSWOOLE_TCP);
