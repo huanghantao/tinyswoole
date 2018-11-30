@@ -78,4 +78,4 @@ make && make install
 
 ## Welcome
 
-QQ群：942858122
+QQ group：942858122
