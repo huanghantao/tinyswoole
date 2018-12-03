@@ -83,8 +83,8 @@ int start(tswServer *serv, int listenfd)
 
 					n = read(events[i].data.fd, buffer, MAX_BUF_SIZE);
 					if (n == 0) {
-						close(events[i].data.fd);
 						epoll_del(epollfd, events[i].data.fd);
+						close(events[i].data.fd);
 						continue;
 					}
 					buffer[n] = 0;
