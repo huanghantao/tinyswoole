@@ -14,6 +14,7 @@ struct _tswServer {
     void (*onClose)(void);
 };
 
+tswServer * tswServer_new(void);
 int start(tswServer *serv, int listenfd);
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length);
 

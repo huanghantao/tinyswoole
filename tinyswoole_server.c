@@ -90,14 +90,13 @@ PHP_METHOD(tinyswoole_server, start)
 	tswServer *serv;
 
 	sock = tsw_zend_read_property(tinyswoole_server_ce_ptr, getThis(), "sock", sizeof("sock") - 1, 0);
-	serv = (tswServer *)malloc(sizeof(tswServer));
+	serv = tswServer_new();
 	if (serv == NULL) {
 		tinyswoole_php_fatal_error(E_ERROR, "malloc tswServer error");
 		return;
 	}
 
 	php_tswoole_register_callback(serv);
-	serv->onStart();
 
 	start(serv, Z_LVAL(*sock));
 }

@@ -11,6 +11,21 @@
 #include "../include/server.h"
 #include "../../include/epoll.h"
 
+tswServer * tswServer_new(void)
+{
+	tswServer *serv;
+
+	serv = (tswServer *)malloc(sizeof(tswServer));
+	if (serv == NULL) {
+		return NULL;
+	}
+	serv->onStart = NULL;
+	serv->onConnect = NULL;
+	serv->onReceive = NULL;
+	serv->onClose = NULL;
+
+	return serv;
+}
 
 int start(tswServer *serv, int listenfd)
 {
@@ -21,6 +36,9 @@ int start(tswServer *serv, int listenfd)
 	struct epoll_event *events;
 
 	listen(listenfd, LISTENQ);
+	if (serv->onStart != NULL) {
+		serv->onStart();
+	}
 	len = sizeof(cliaddr);
 
 	epollfd = epoll_create(512);
@@ -54,7 +72,9 @@ int start(tswServer *serv, int listenfd)
 						printf("epoll_add error\n");
 						return TSW_ERR;
 					}
-					serv->onConnect(connfd);
+					if (serv->onConnect != NULL) {
+						serv->onConnect(connfd);
+					}
 					continue;
 				}
 			}
@@ -68,7 +88,9 @@ int start(tswServer *serv, int listenfd)
 						continue;
 					}
 					buffer[n] = 0;
-					serv->onReceive(serv, events[i].data.fd, buffer);
+					if (serv->onReceive != NULL) {
+						serv->onReceive(serv, events[i].data.fd, buffer);
+					}
 					continue;
 			}
 		}
