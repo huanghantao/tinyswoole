@@ -9,41 +9,72 @@
 #include <stdlib.h>
 #include "tswoole_config.h"
 #include "../include/server.h"
+#include "../../include/epoll.h"
 
 
-#define LISTENQ 10
-#define MAX_BUF_SIZE 1024
-
-
-int start(tswServer *serv, int sock)
+int start(tswServer *serv, int listenfd)
 {
-	int connfd;
-	int n;
+	int epollfd;
 	socklen_t len;
 	struct sockaddr_in cliaddr;
 	char buffer[MAX_BUF_SIZE];
+	struct epoll_event *events;
 
-	listen(sock, LISTENQ);
+	listen(listenfd, LISTENQ);
 	len = sizeof(cliaddr);
 
-    for (;;) {
-    	connfd = accept(sock, (struct sockaddr *)&cliaddr, &len);
-		if (connfd > 0) {
-			serv->onConnect(connfd);
-			for (;;) {
-				n = read(connfd, buffer, MAX_BUF_SIZE);
-				
-				if (n <= 0) {
-					close(connfd);
-					break;
+	epollfd = epoll_create(512);
+	if (epollfd < 0) {
+		perror("epoll_create error: ");
+		return TSW_ERR;
+	}
+
+	if (epoll_add(epollfd, listenfd, EPOLLIN | EPOLLET, 0) < 0) {
+		printf("epoll_add error\n");
+		return TSW_ERR;
+	}
+
+	events = (struct epoll_event *)malloc(sizeof(struct epoll_event) * MAXEVENTS);
+	if (events == NULL) {
+		printf("malloc error\n");
+		return TSW_ERR;
+	}
+
+	for (;;) {
+		int nfds;
+
+		nfds = epoll_wait(epollfd, events, MAXEVENTS, -1);
+		for (int i = 0; i < nfds; i++) {
+			if (events[i].data.fd == listenfd) {
+				int connfd;
+
+				connfd = accept(events[i].data.fd, (struct sockaddr *)&cliaddr, &len);
+				if (connfd > 0) {
+					if (epoll_add(epollfd, connfd, EPOLLIN | EPOLLET, 1) < 0) {
+						printf("epoll_add error\n");
+						return TSW_ERR;
+					}
+					serv->onConnect(connfd);
+					continue;
 				}
-				buffer[n] = 0;
-				serv->onReceive(serv, connfd, buffer);
+			}
+			if (events[i].events & EPOLLIN) {
+					int n;
+
+					n = read(events[i].data.fd, buffer, MAX_BUF_SIZE);
+					if (n == 0) {
+						close(events[i].data.fd);
+						epoll_del(epollfd, events[i].data.fd);
+						continue;
+					}
+					buffer[n] = 0;
+					serv->onReceive(serv, events[i].data.fd, buffer);
+					continue;
 			}
 		}
 	}
 
-	close(sock);
+	close(listenfd);
 }
 
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length)

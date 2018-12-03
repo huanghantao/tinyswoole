@@ -38,14 +38,6 @@ struct _tswDataHead {
 struct _tswEventData {
     tswDataHead info;
     char data[TSW_BUFFER_SIZE];
-} tswEventData;
-
-struct _tswReactor {
-	pthread_t tid;
-} tswReactor;
-
-struct _tswWorker {
-	int pid;
-} tswWorker;
+};
 
 #endif /* TINYSWOOLE_H_ */

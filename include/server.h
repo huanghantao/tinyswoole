@@ -3,6 +3,10 @@
 
 #include "tinyswoole.h"
 
+#define LISTENQ 10
+#define MAX_BUF_SIZE 1024
+#define MAXEVENTS 64
+
 struct _tswServer {
     void (*onStart)(void);
     void (*onConnect)(int fd);
@@ -10,7 +14,7 @@ struct _tswServer {
     void (*onClose)(void);
 };
 
-int start(tswServer *serv, int sock);
+int start(tswServer *serv, int listenfd);
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length);
 
 #endif /* TSW_SERVER_H_ */
