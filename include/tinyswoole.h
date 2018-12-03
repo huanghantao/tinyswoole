@@ -22,5 +22,30 @@ char tsw_error[TSW_ERROR_MSG_SIZE];
 tswLog_put(TSW_LOG_WARNING,tsw_error);
 
 typedef struct _tswServer tswServer;
+typedef struct _tswDataHead tswDataHead;
+typedef struct _tswEventData tswEventData;
+typedef struct _tswReactor tswReactor;
+typedef struct _tswWorker tswWorker;
+
+#define TSW_IPC_MAX_SIZE            8192
+#define TSW_BUFFER_SIZE             (TSW_IPC_MAX_SIZE - sizeof(tswDataHead))
+
+struct _tswDataHead {
+    uint16_t len; // data len
+    int16_t from_id; // reactor id
+};
+
+struct _tswEventData {
+    tswDataHead info;
+    char data[TSW_BUFFER_SIZE];
+} tswEventData;
+
+struct _tswReactor {
+	pthread_t tid;
+} tswReactor;
+
+struct _tswWorker {
+	int pid;
+} tswWorker;
 
 #endif /* TINYSWOOLE_H_ */
