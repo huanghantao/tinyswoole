@@ -4,6 +4,6 @@ dnl Make sure that the comment is aligned:
 
 if test "$PHP_TINYSWOOLE" != "no"; then
   PHP_SUBST(TINYSWOOLE_SHARED_LIBADD)
-  source_file="tinyswoole.c tinyswoole_server.c src/network/server.c src/socket.c src/log.c src/reactor/epoll.c src/process.c"
+  source_file="tinyswoole.c tinyswoole_server.c src/network/server.c src/socket.c src/log.c src/reactor/epoll.c src/network/reactor_thread.c"
   PHP_NEW_EXTENSION(tinyswoole, $source_file, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
 fi

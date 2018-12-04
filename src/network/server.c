@@ -8,10 +8,8 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include "tswoole_config.h"
-#include "../include/server.h"
+#include "../../include/server.h"
 #include "../../include/epoll.h"
-
-tswServerG TSwooleG;
 
 tswServer *tswServer_new(void)
 {
@@ -31,25 +29,39 @@ tswServer *tswServer_new(void)
 
 int start(tswServer *serv, int listenfd)
 {
-	int epollfd;
-	char buffer[MAX_BUF_SIZE];
-	struct epoll_event *events;
 
 	listen(listenfd, LISTENQ);
 	if (serv->onStart != NULL) {
 		serv->onStart();
 	}
 
-	epollfd = epoll_create(512);
-	if (epollfd < 0) {
+	listen_epollfd = epoll_create(512);
+	if (listen_epollfd < 0) {
 		perror("epoll_create error: ");
 		return TSW_ERR;
 	}
 
-	if (epoll_add(epollfd, listenfd, EPOLLIN | EPOLLET, 0) < 0) {
+	if (epoll_add(listen_epollfd, listenfd, EPOLLIN | EPOLLET, 0) < 0) {
 		printf("epoll_add error\n");
 		return TSW_ERR;
 	}
+
+	conn_epollfd = epoll_create(512);
+	if (conn_epollfd < 0) {
+		perror("epoll_create error: ");
+		return TSW_ERR;
+	}
+
+	tswReactorThread_start(serv, listenfd);
+	tswServer_master_loop(serv, listenfd);
+
+	close(listenfd);
+}
+
+int tswServer_master_loop(tswServer *serv, int listenfd)
+{
+	int nfds;
+	struct epoll_event *events;
 
 	events = (struct epoll_event *)malloc(sizeof(struct epoll_event) * MAXEVENTS);
 	if (events == NULL) {
@@ -58,57 +70,39 @@ int start(tswServer *serv, int listenfd)
 	}
 
 	for (;;) {
-		int nfds;
-
-		nfds = epoll_wait(epollfd, events, MAXEVENTS, -1);
+		nfds = epoll_wait(listen_epollfd, events, MAXEVENTS, -1);
 		for (int i = 0; i < nfds; i++) {
 			if (events[i].data.fd == listenfd) {
 				int connfd;
 				tswEvent event;
+
 				event.fd = events[i].data.fd;
-				connfd = tswServer_master_onAccept(epollfd, &event);
+				connfd = tswServer_master_onAccept(&event);
+				if (connfd > 0) {
+					if (epoll_add(conn_epollfd, connfd, EPOLLIN | EPOLLET, 1) < 0) {
+						printf("epoll_add error\n");
+						return TSW_ERR;
+					}
+				}
+
 				if (serv->onConnect != NULL) {
 					serv->onConnect(connfd);
 				}
 				continue;
 			}
-			if (events[i].events & EPOLLIN) {
-					int n;
-
-					n = read(events[i].data.fd, buffer, MAX_BUF_SIZE);
-					if (n == 0) {
-						epoll_del(epollfd, events[i].data.fd);
-						close(events[i].data.fd);
-						continue;
-					}
-					buffer[n] = 0;
-					if (serv->onReceive != NULL) {
-						serv->onReceive(serv, events[i].data.fd, buffer);
-					}
-					continue;
-			}
 		}
 	}
-
-	close(listenfd);
 }
 
-int tswServer_master_onAccept(int epollfd, const tswEvent *event)
+int tswServer_master_onAccept(const tswEvent *event)
 {
 	int connfd;
 	socklen_t len;
 	struct sockaddr_in cliaddr;
 
 	len = sizeof(cliaddr);
-
 	connfd = accept(event->fd, (struct sockaddr *)&cliaddr, &len);
-	if (connfd > 0) {
-		if (epoll_add(epollfd, connfd, EPOLLIN | EPOLLET, 1) < 0) {
-			printf("epoll_add error\n");
-			return TSW_ERR;
-		}
-	}
-
+	
 	return connfd;
 }
 
