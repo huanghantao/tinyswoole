@@ -11,6 +11,8 @@
 #include "../include/server.h"
 #include "../../include/epoll.h"
 
+tswServerG TSwooleG;
+
 tswServer *tswServer_new(void)
 {
 	tswServer *serv;

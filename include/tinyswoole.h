@@ -27,6 +27,7 @@ typedef struct _tswDataHead tswDataHead;
 typedef struct _tswEventData tswEventData;
 typedef struct _tswReactor tswReactor;
 typedef struct _tswWorker tswWorker;
+typedef struct _tswServerG tswServerG;
 
 #define TSW_IPC_MAX_SIZE            8192
 #define TSW_BUFFER_SIZE             (TSW_IPC_MAX_SIZE - sizeof(tswDataHead))
@@ -43,6 +44,10 @@ struct _tswDataHead {
 struct _tswEventData {
     tswDataHead info;
     char data[TSW_BUFFER_SIZE];
+};
+
+struct _tswServerG {
+    tswServer *serv;
 };
 
 #endif /* TINYSWOOLE_H_ */

@@ -18,8 +18,14 @@ PHP_METHOD(tinyswoole_server, __construct)
 	long serv_port;
 	long sock_type = TSW_SOCK_TCP;
 	int sock;
+	tswServer *serv;
 
-	server_object = getThis(); // server_object is a global variable
+	serv = tswServer_new();
+	if (serv == NULL) {
+		tinyswoole_php_fatal_error(E_ERROR, "tswServer_new error");
+		return;
+	}
+	TSwooleG.serv = serv;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl|l", &serv_host, &host_len, &serv_port, &sock_type) == FAILURE) {
 		RETURN_NULL();
@@ -33,6 +39,7 @@ PHP_METHOD(tinyswoole_server, __construct)
 		RETURN_NULL();
 	}
 
+	server_object = getThis(); // server_object is a global variable
 	zend_update_property_string(tinyswoole_server_ce_ptr, server_object, "ip", sizeof("ip") - 1, serv_host);
 	zend_update_property_long(tinyswoole_server_ce_ptr, server_object, "port", sizeof("port") - 1, serv_port);
 	zend_update_property_long(tinyswoole_server_ce_ptr, server_object, "sock", sizeof("sock") - 1, sock);
@@ -43,7 +50,6 @@ PHP_METHOD(tinyswoole_server, on)
 	int i;
 	char property_name[128]; // on + event name eg onConnect onReceive
 	int property_name_len = 0;
-
 	zval *name;
 	zval *callable;
 	zend_fcall_info_cache *func_cache;
@@ -90,12 +96,8 @@ PHP_METHOD(tinyswoole_server, start)
 	tswServer *serv;
 
 	sock = tsw_zend_read_property(tinyswoole_server_ce_ptr, getThis(), "sock", sizeof("sock") - 1, 0);
-	serv = tswServer_new();
-	if (serv == NULL) {
-		tinyswoole_php_fatal_error(E_ERROR, "malloc tswServer error");
-		return;
-	}
 
+	serv = TSwooleG.serv;
 	php_tswoole_register_callback(serv);
 
 	start(serv, Z_LVAL(*sock));

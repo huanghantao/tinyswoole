@@ -80,6 +80,8 @@ enum php_tinyswoole_server_callback_type {
 zval *server_object;
 extern zend_class_entry *tinyswoole_server_ce_ptr;
 
+extern tswServerG TSwooleG;
+
 zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent);
 void php_tswoole_register_callback(tswServer *serv);
 void php_tswoole_onStart(void);
