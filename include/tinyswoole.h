@@ -83,8 +83,8 @@ struct _tswReactor {
     uint32_t event_num;
     uint32_t max_event_num;
 
-    int (*add)(tswReactor *reactor, int fd, int fdtype);
-    int (*set)(tswReactor *reactor, int fd, int fdtype);
+    int (*add)(tswReactor *reactor, int fd, int event_type);
+    int (*set)(tswReactor *reactor, int fd, int event_type);
     int (*del)(tswReactor *reactor, int fd);
     int (*wait)(tswReactor *reactor);
     int (*free)(tswReactor *reactor);
