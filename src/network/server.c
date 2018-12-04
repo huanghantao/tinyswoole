@@ -11,7 +11,7 @@
 #include "../include/server.h"
 #include "../../include/epoll.h"
 
-tswServer * tswServer_new(void)
+tswServer *tswServer_new(void)
 {
 	tswServer *serv;
 
@@ -30,8 +30,6 @@ tswServer * tswServer_new(void)
 int start(tswServer *serv, int listenfd)
 {
 	int epollfd;
-	socklen_t len;
-	struct sockaddr_in cliaddr;
 	char buffer[MAX_BUF_SIZE];
 	struct epoll_event *events;
 
@@ -39,7 +37,6 @@ int start(tswServer *serv, int listenfd)
 	if (serv->onStart != NULL) {
 		serv->onStart();
 	}
-	len = sizeof(cliaddr);
 
 	epollfd = epoll_create(512);
 	if (epollfd < 0) {
@@ -65,18 +62,13 @@ int start(tswServer *serv, int listenfd)
 		for (int i = 0; i < nfds; i++) {
 			if (events[i].data.fd == listenfd) {
 				int connfd;
-
-				connfd = accept(events[i].data.fd, (struct sockaddr *)&cliaddr, &len);
-				if (connfd > 0) {
-					if (epoll_add(epollfd, connfd, EPOLLIN | EPOLLET, 1) < 0) {
-						printf("epoll_add error\n");
-						return TSW_ERR;
-					}
-					if (serv->onConnect != NULL) {
-						serv->onConnect(connfd);
-					}
-					continue;
+				tswEvent event;
+				event.fd = events[i].data.fd;
+				connfd = tswServer_master_onAccept(epollfd, &event);
+				if (serv->onConnect != NULL) {
+					serv->onConnect(connfd);
 				}
+				continue;
 			}
 			if (events[i].events & EPOLLIN) {
 					int n;
@@ -97,6 +89,25 @@ int start(tswServer *serv, int listenfd)
 	}
 
 	close(listenfd);
+}
+
+int tswServer_master_onAccept(int epollfd, const tswEvent *event)
+{
+	int connfd;
+	socklen_t len;
+	struct sockaddr_in cliaddr;
+
+	len = sizeof(cliaddr);
+
+	connfd = accept(event->fd, (struct sockaddr *)&cliaddr, &len);
+	if (connfd > 0) {
+		if (epoll_add(epollfd, connfd, EPOLLIN | EPOLLET, 1) < 0) {
+			printf("epoll_add error\n");
+			return TSW_ERR;
+		}
+	}
+
+	return connfd;
 }
 
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length)
