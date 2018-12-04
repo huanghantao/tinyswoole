@@ -29,7 +29,6 @@ tswServer *tswServer_new(void)
 
 int start(tswServer *serv, int listenfd)
 {
-
 	listen(listenfd, LISTENQ);
 	if (serv->onStart != NULL) {
 		serv->onStart();

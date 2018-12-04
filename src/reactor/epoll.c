@@ -1,3 +1,8 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include "../../include/server.h"
 #include "../../include/epoll.h"
 
 static int setnonblocking(int fd)
@@ -13,6 +18,104 @@ static int setnonblocking(int fd)
     }
 
     return TSW_OK;
+}
+
+static int tswReactorEpoll_add(tswReactor *reactor, int fd, int event_type)
+{
+    tswReactorEpoll *reactor_epoll_object = reactor->object;
+
+    if (event_type == TSW_EVENT_READ) {
+        epoll_add(reactor_epoll_object->epfd, fd, EPOLLIN | EPOLLET, 0);
+    }
+    if (event_type == TSW_EVENT_WRITE) {
+        epoll_add(reactor_epoll_object->epfd, fd, EPOLLOUT | EPOLLET, 0);
+    }
+    reactor->event_num++;
+
+    return TSW_OK;
+}
+
+static int tswReactorEpoll_set(tswReactor *reactor, int fd, int event_type)
+{
+    tswReactorEpoll *reactor_epoll_object = reactor->object;
+
+    if (event_type == TSW_EVENT_READ) {
+        epoll_event_set(reactor_epoll_object->epfd, fd, EPOLLIN | EPOLLET);
+    }
+    if (event_type == TSW_EVENT_WRITE) {
+        epoll_event_set(reactor_epoll_object->epfd, fd, EPOLLOUT | EPOLLET);
+    }
+
+    return TSW_OK;
+}
+
+static int tswReactorEpoll_del(tswReactor *reactor, int fd)
+{
+    tswReactorEpoll *reactor_epoll_object = reactor->object;
+
+    epoll_del(reactor_epoll_object->epfd, fd);
+    return TSW_OK;
+}
+
+static int tswReactorEpoll_wait(tswReactor *reactor)
+{
+    int nfds;
+    int epollfd;
+    tswReactorEpoll *reactor_epoll_object;
+    struct epoll_event *events;
+
+    reactor_epoll_object = reactor->object;
+    epollfd = reactor_epoll_object->epfd;
+    events = reactor_epoll_object->events;
+
+	if (events == NULL) {
+		tswWarn("malloc error.");
+		return TSW_ERR;
+	}
+
+    nfds = epoll_wait(epollfd, events, MAXEVENTS, -1);
+    return nfds;
+}
+
+static int tswReactorEpoll_free(tswReactor *reactor)
+{
+    tswReactorEpoll *reactor_epoll_object = reactor->object;
+    close(reactor_epoll_object->epfd);
+    free(reactor_epoll_object->events);
+    free(reactor_epoll_object);
+}
+
+int tswReactorEpoll_create(tswReactor *reactor, int max_event_num)
+{
+    tswReactorEpoll *reactor_epoll_object;
+
+    reactor_epoll_object = malloc(sizeof(tswReactorEpoll));
+    if (reactor_epoll_object == NULL) {
+        tswWarn("malloc error.");
+		return TSW_ERR;
+    }
+
+    reactor_epoll_object->epfd = epoll_create(512);
+    if (reactor_epoll_object->epfd < 0) {
+        tswWarn("epoll_create failed. Error: %s[%d]", strerror(errno), errno);
+        free(reactor_epoll_object);
+		return TSW_ERR;
+    }
+    reactor_epoll_object->events = malloc(sizeof(struct epoll_event) * max_event_num);
+    if (reactor_epoll_object->events == NULL) {
+        tswWarn("malloc error.");
+        free(reactor_epoll_object);
+		return TSW_ERR;
+    }
+
+    reactor->object = reactor_epoll_object;
+    reactor->max_event_num = max_event_num;
+    
+    reactor->add = tswReactorEpoll_add;
+    reactor->set = tswReactorEpoll_set;
+    reactor->del = tswReactorEpoll_del;
+    reactor->wait = tswReactorEpoll_wait;
+    reactor->free = tswReactorEpoll_free;
 }
 
 int epoll_add(int epollfd, int fd, int event_type, int flag)
