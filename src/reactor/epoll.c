@@ -63,17 +63,19 @@ static int tswReactorEpoll_wait(tswReactor *reactor)
     int epollfd;
     tswReactorEpoll *reactor_epoll_object;
     struct epoll_event *events;
+    int max_event_num;
 
     reactor_epoll_object = reactor->object;
     epollfd = reactor_epoll_object->epfd;
     events = reactor_epoll_object->events;
+    max_event_num = reactor->max_event_num;
 
 	if (events == NULL) {
 		tswWarn("malloc error.");
 		return TSW_ERR;
 	}
 
-    nfds = epoll_wait(epollfd, events, MAXEVENTS, -1);
+    nfds = epoll_wait(epollfd, events, max_event_num, -1);
     return nfds;
 }
 
@@ -109,6 +111,7 @@ int tswReactorEpoll_create(tswReactor *reactor, int max_event_num)
     }
 
     reactor->object = reactor_epoll_object;
+    reactor->event_num = 0;
     reactor->max_event_num = max_event_num;
     
     reactor->add = tswReactorEpoll_add;

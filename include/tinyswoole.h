@@ -80,8 +80,8 @@ struct _tswReactorEpoll {
 
 struct _tswReactor {
     void *object; // event object, for example, tswReactorEpoll
-    uint32_t event_num;
-    uint32_t max_event_num;
+    int event_num;
+    int max_event_num;
 
     int (*add)(tswReactor *reactor, int fd, int event_type);
     int (*set)(tswReactor *reactor, int fd, int event_type);
@@ -89,7 +89,7 @@ struct _tswReactor {
     int (*wait)(tswReactor *reactor);
     int (*free)(tswReactor *reactor);
 
-    int (*write)(tswReactor *reactor, int fd, void *buf, int n); // // An interface that sends data to a socket using reactor
+    int (*write)(tswReactor *reactor, int fd, void *buf, int n); // An interface that sends data to a socket using reactor
     int (*close)(tswReactor *reactor, int fd);
 };
 
