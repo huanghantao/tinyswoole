@@ -119,6 +119,8 @@ int tswReactorEpoll_create(tswReactor *reactor, int max_event_num)
     reactor->del = tswReactorEpoll_del;
     reactor->wait = tswReactorEpoll_wait;
     reactor->free = tswReactorEpoll_free;
+
+    return TSW_OK;
 }
 
 int epoll_add(int epollfd, int fd, int event_type, int flag)

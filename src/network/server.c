@@ -34,25 +34,16 @@ int start(tswServer *serv, int listenfd)
 		serv->onStart();
 	}
 
-	listen_epollfd = epoll_create(512);
-	if (listen_epollfd < 0) {
-		perror("epoll_create error: ");
+	tswReactor *reactor = malloc(sizeof(tswReactor));
+	if (reactor == NULL) {
+		tswWarn("malloc error.");
 		return TSW_ERR;
 	}
 
-	if (epoll_add(listen_epollfd, listenfd, EPOLLIN | EPOLLET, 0) < 0) {
-		printf("epoll_add error\n");
+	if (tswReactor_create(reactor, MAXEVENTS) < 0) {
+		tswWarn("tswReactor_create error.");
 		return TSW_ERR;
 	}
-
-	conn_epollfd = epoll_create(512);
-	if (conn_epollfd < 0) {
-		perror("epoll_create error: ");
-		return TSW_ERR;
-	}
-
-	tswReactorThread_start(serv, listenfd);
-	tswServer_master_loop(serv, listenfd);
 
 	close(listenfd);
 }
