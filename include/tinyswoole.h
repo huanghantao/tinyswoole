@@ -42,14 +42,13 @@ typedef struct _tswThreadParam tswThreadParam;
 typedef struct _tswReactor tswReactor;
 typedef struct _tswReactorEpoll tswReactorEpoll;
 
-typedef int (*tswReactor_handle)(tswReactor *reactor, tswEvent *event);
-
 #define TSW_IPC_MAX_SIZE 8192
 #define TSW_BUFFER_SIZE (TSW_IPC_MAX_SIZE - sizeof(tswDataHead))
 
 typedef struct _tswEvent {
 	int fd;
 	int event;
+	int (*event_handler)(int fd);
 } tswEvent;
 
 struct _tswDataHead {
@@ -81,10 +80,14 @@ struct _tswReactorEpoll {
 	struct epoll_event *events; // for epoll_wait()
 };
 
+#define MAXEVENTS 64
+
 struct _tswReactor {
 	void *object; // event object, for example, tswReactorEpoll
 	int event_num;
 	int max_event_num;
+
+	tswEvent tswev[MAXEVENTS + 1];
 
 	int (*add)(tswReactor *reactor, int fd, int event_type);
 	int (*set)(tswReactor *reactor, int fd, int event_type);
@@ -92,13 +95,11 @@ struct _tswReactor {
 	int (*wait)(tswReactor *reactor);
 	int (*free)(tswReactor *reactor);
 
-	int (*setHandle)(tswReactor *reactor, int event_type, tswReactor_handle);
-
-	int (*write)(tswReactor *reactor, int fd, void *buf, int n); // An interface that sends data to a socket using reactor
-	int (*close)(tswReactor *reactor, int fd);
+	int (*setHandler)(tswEvent *tswev, int (*tswReactor_handler)(int fd));
 };
 
 int tswReactor_create(tswReactor *reactor, int max_event_num);
 int tswReactorEpoll_create(tswReactor *reactor, int max_event_num);
+int tswReactor_setHandler(tswEvent *tswev, int (*tswReactor_handler)(int fd));
 
 #endif /* TINYSWOOLE_H_ */

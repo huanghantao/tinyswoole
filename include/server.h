@@ -5,7 +5,6 @@
 
 #define LISTENQ 10
 #define MAX_BUF_SIZE 1024
-#define MAXEVENTS 64
 
 tswServerG TSwooleG;
 int listen_epollfd;

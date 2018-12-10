@@ -45,6 +45,11 @@ int start(tswServer *serv, int listenfd)
 		return TSW_ERR;
 	}
 
+	if (reactor->add(reactor, listenfd, TSW_EVENT_READ) < 0) {
+		tswWarn("reactor add error.");
+		return TSW_ERR;
+	}
+
 	close(listenfd);
 }
 
