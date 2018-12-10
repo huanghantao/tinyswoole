@@ -60,15 +60,14 @@ int start(tswServer *serv, int listenfd)
 		    tswReactorEpoll *reactor_epoll_object = reactor->object;
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
-			connfd = tswev->event_handler(tswev->fd);
-			serv->onConnect(connfd);
+			connfd = tswev->event_handler(reactor, tswev->fd);
 		}
 	}
 
 	close(listenfd);
 }
 
-int tswServer_master_onAccept(int listenfd)
+int tswServer_master_onAccept(tswReactor *reactor, int listenfd)
 {
 	int connfd;
 	socklen_t len;
@@ -76,8 +75,32 @@ int tswServer_master_onAccept(int listenfd)
 
 	len = sizeof(cliaddr);
 	connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &len);
-	
+	TSwooleG.serv->onConnect(connfd);
+
+	if (reactor->add(reactor, connfd, TSW_EVENT_READ, tswServer_master_onReceive) < 0) {
+		tswWarn("reactor add error.");
+		return TSW_ERR;
+	}
+
 	return connfd;
+}
+
+int tswServer_master_onReceive(tswReactor *reactor, int fd)
+{
+	int n;
+	char buffer[MAX_BUF_SIZE];
+	tswReactorEpoll *reactor_epoll_object = reactor->object;
+
+	n = read(fd, buffer, MAX_BUF_SIZE);
+	if (n == 0) {
+		epoll_del(reactor_epoll_object->epfd, fd);
+		close(fd);
+		return TSW_OK;
+	}
+	buffer[n] = 0;
+	TSwooleG.serv->onReceive(TSwooleG.serv, fd, buffer);
+
+	return TSW_OK;
 }
 
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length)

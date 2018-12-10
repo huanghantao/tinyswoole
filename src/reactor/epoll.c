@@ -20,7 +20,7 @@ static int setnonblocking(int fd)
     return TSW_OK;
 }
 
-static int tswReactorEpoll_add(tswReactor *reactor, int fd, int tsw_event_type, int (*tswReactor_handler)(int fd))
+static int tswReactorEpoll_add(tswReactor *reactor, int fd, int tsw_event_type, int (*tswReactor_handler)(tswReactor *reactor, int fd))
 {
     if (tsw_event_type == TSW_EVENT_READ) {
         epoll_add(reactor, fd, EPOLLIN | EPOLLET, tswReactor_handler);
@@ -121,7 +121,7 @@ int tswReactorEpoll_create(tswReactor *reactor, int max_event_num)
     return TSW_OK;
 }
 
-int epoll_add(tswReactor *reactor, int fd, int event_type, int (*tswReactor_handler)(int fd))
+int epoll_add(tswReactor *reactor, int fd, int event_type, int (*tswReactor_handler)(tswReactor *reactor, int fd))
 {
 	struct epoll_event e;
     tswEvent *tswev;

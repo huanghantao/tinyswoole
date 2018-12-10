@@ -11,7 +11,7 @@ int tswReactor_create(tswReactor *reactor, int max_event_num)
     return TSW_OK;
 }
 
-int tswReactor_setHandler(tswEvent *tswev, int (*tswReactor_handler)(int fd))
+int tswReactor_setHandler(tswEvent *tswev, int (*tswReactor_handler)(tswReactor *reactor, int fd))
 {
     tswev->event_handler = tswReactor_handler;
     return TSW_OK;
