@@ -45,58 +45,37 @@ int start(tswServer *serv, int listenfd)
 		return TSW_ERR;
 	}
 
-	if (reactor->add(reactor, listenfd, TSW_EVENT_READ) < 0) {
+	if (reactor->add(reactor, listenfd, TSW_EVENT_READ, tswServer_master_onAccept) < 0) {
 		tswWarn("reactor add error.");
 		return TSW_ERR;
+	}
+
+	for (;;) {
+		int nfds;
+
+		nfds = reactor->wait(reactor);
+
+		for (int i = 0; i < nfds; i++) {
+			int connfd;
+		    tswReactorEpoll *reactor_epoll_object = reactor->object;
+
+			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
+			connfd = tswev->event_handler(tswev->fd);
+			serv->onConnect(connfd);
+		}
 	}
 
 	close(listenfd);
 }
 
-int tswServer_master_loop(tswServer *serv, int listenfd)
-{
-	int nfds;
-	struct epoll_event *events;
-
-	events = (struct epoll_event *)malloc(sizeof(struct epoll_event) * MAXEVENTS);
-	if (events == NULL) {
-		printf("malloc error\n");
-		return TSW_ERR;
-	}
-
-	for (;;) {
-		nfds = epoll_wait(listen_epollfd, events, MAXEVENTS, -1);
-		for (int i = 0; i < nfds; i++) {
-			if (events[i].data.fd == listenfd) {
-				int connfd;
-				tswEvent event;
-
-				event.fd = events[i].data.fd;
-				connfd = tswServer_master_onAccept(&event);
-				if (connfd > 0) {
-					if (epoll_add(conn_epollfd, connfd, EPOLLIN | EPOLLET, 1) < 0) {
-						printf("epoll_add error\n");
-						return TSW_ERR;
-					}
-				}
-
-				if (serv->onConnect != NULL) {
-					serv->onConnect(connfd);
-				}
-				continue;
-			}
-		}
-	}
-}
-
-int tswServer_master_onAccept(const tswEvent *event)
+int tswServer_master_onAccept(int listenfd)
 {
 	int connfd;
 	socklen_t len;
 	struct sockaddr_in cliaddr;
 
 	len = sizeof(cliaddr);
-	connfd = accept(event->fd, (struct sockaddr *)&cliaddr, &len);
+	connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &len);
 	
 	return connfd;
 }

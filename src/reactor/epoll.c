@@ -20,15 +20,13 @@ static int setnonblocking(int fd)
     return TSW_OK;
 }
 
-static int tswReactorEpoll_add(tswReactor *reactor, int fd, int event_type)
+static int tswReactorEpoll_add(tswReactor *reactor, int fd, int tsw_event_type, int (*tswReactor_handler)(int fd))
 {
-    tswReactorEpoll *reactor_epoll_object = reactor->object;
-
-    if (event_type == TSW_EVENT_READ) {
-        epoll_add(reactor_epoll_object->epfd, fd, EPOLLIN | EPOLLET, 0);
+    if (tsw_event_type == TSW_EVENT_READ) {
+        epoll_add(reactor, fd, EPOLLIN | EPOLLET, tswReactor_handler);
     }
-    if (event_type == TSW_EVENT_WRITE) {
-        epoll_add(reactor_epoll_object->epfd, fd, EPOLLOUT | EPOLLET, 0);
+    if (tsw_event_type == TSW_EVENT_WRITE) {
+        epoll_add(reactor, fd, EPOLLOUT | EPOLLET, tswReactor_handler);
     }
     reactor->event_num++;
 
@@ -123,17 +121,25 @@ int tswReactorEpoll_create(tswReactor *reactor, int max_event_num)
     return TSW_OK;
 }
 
-int epoll_add(int epollfd, int fd, int event_type, int flag)
+int epoll_add(tswReactor *reactor, int fd, int event_type, int (*tswReactor_handler)(int fd))
 {
 	struct epoll_event e;
+    tswEvent *tswev;
+    tswReactorEpoll *reactor_epoll_object;
 
-	if (flag) {
-        setnonblocking(fd);
+    reactor_epoll_object = reactor->object;
+    tswev = (tswEvent *)malloc(sizeof(tswEvent));
+
+    // setnonblocking(fd);
+    tswev->fd = fd;
+    tswev->event = event_type;
+    if (reactor->setHandler(tswev, tswReactor_handler) < 0) {
+        return TSW_ERR;
     }
+	e.data.ptr = tswev;
+    e.events = event_type;
 
-	e.data.fd = fd;
-	e.events = event_type;
-	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &e) < 0) {
+	if (epoll_ctl(reactor_epoll_object->epfd, EPOLL_CTL_ADD, fd, &e) < 0) {
         perror("epoll_ctl error: ");
         return TSW_ERR;
     }

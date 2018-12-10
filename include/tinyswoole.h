@@ -45,12 +45,6 @@ typedef struct _tswReactorEpoll tswReactorEpoll;
 #define TSW_IPC_MAX_SIZE 8192
 #define TSW_BUFFER_SIZE (TSW_IPC_MAX_SIZE - sizeof(tswDataHead))
 
-typedef struct _tswEvent {
-	int fd;
-	int event;
-	int (*event_handler)(int fd);
-} tswEvent;
-
 struct _tswDataHead {
 	uint16_t len;	// data len
 	int16_t from_id; // reactor id
@@ -82,6 +76,12 @@ struct _tswReactorEpoll {
 
 #define MAXEVENTS 64
 
+typedef struct _tswEvent {
+	int fd;
+	int event;
+	int (*event_handler)(int fd);
+} tswEvent;
+
 struct _tswReactor {
 	void *object; // event object, for example, tswReactorEpoll
 	int event_num;
@@ -89,7 +89,7 @@ struct _tswReactor {
 
 	tswEvent tswev[MAXEVENTS + 1];
 
-	int (*add)(tswReactor *reactor, int fd, int event_type);
+	int (*add)(tswReactor *reactor, int fd, int tsw_event_type, int (*tswReactor_handler)(int fd));
 	int (*set)(tswReactor *reactor, int fd, int event_type);
 	int (*del)(tswReactor *reactor, int fd);
 	int (*wait)(tswReactor *reactor);
