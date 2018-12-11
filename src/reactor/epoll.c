@@ -47,11 +47,14 @@ static int tswReactorEpoll_set(tswReactor *reactor, int fd, int event_type)
     return TSW_OK;
 }
 
-static int tswReactorEpoll_del(tswReactor *reactor, int fd)
+static int tswReactorEpoll_del(tswReactor *reactor, tswEvent *tswev)
 {
     tswReactorEpoll *reactor_epoll_object = reactor->object;
 
-    epoll_del(reactor_epoll_object->epfd, fd);
+    if (epoll_ctl(reactor_epoll_object->epfd, EPOLL_CTL_DEL, tswev->fd, NULL) < 0) {
+        perror("epoll_ctl error: ");
+        return TSW_ERR;
+    }
     return TSW_OK;
 }
 
@@ -144,16 +147,6 @@ int epoll_add(tswReactor *reactor, int fd, int event_type, int (*tswReactor_hand
         return TSW_ERR;
     }
 
-	return TSW_OK;
-}
-
-int epoll_del(int epollfd, int fd)
-{
-    if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, NULL) < 0) {
-        perror("epoll_ctl error: ");
-        return TSW_ERR;
-    }
-    
 	return TSW_OK;
 }
 

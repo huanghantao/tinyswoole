@@ -93,8 +93,9 @@ int tswServer_master_onReceive(tswReactor *reactor, tswEvent *tswev)
 
 	n = read(tswev->fd, buffer, MAX_BUF_SIZE);
 	if (n == 0) {
-		epoll_del(reactor_epoll_object->epfd, tswev->fd);
+		reactor->del(reactor, tswev);
 		close(tswev->fd);
+		free(tswev);
 		return TSW_OK;
 	}
 	buffer[n] = 0;
