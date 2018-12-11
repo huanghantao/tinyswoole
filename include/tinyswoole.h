@@ -91,7 +91,7 @@ struct _tswReactor {
 
 	int (*add)(tswReactor *reactor, int fd, int tsw_event_type, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev));
 	int (*set)(tswReactor *reactor, int fd, int event_type);
-	int (*del)(tswReactor *reactor, tswEvent *tswev);
+	int (*del)(tswReactor *reactor, int fd);
 	int (*wait)(tswReactor *reactor);
 	int (*free)(tswReactor *reactor);
 

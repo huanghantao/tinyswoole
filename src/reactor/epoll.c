@@ -47,11 +47,11 @@ static int tswReactorEpoll_set(tswReactor *reactor, int fd, int event_type)
     return TSW_OK;
 }
 
-static int tswReactorEpoll_del(tswReactor *reactor, tswEvent *tswev)
+static int tswReactorEpoll_del(tswReactor *reactor, int fd)
 {
     tswReactorEpoll *reactor_epoll_object = reactor->object;
 
-    if (epoll_ctl(reactor_epoll_object->epfd, EPOLL_CTL_DEL, tswev->fd, NULL) < 0) {
+    if (epoll_ctl(reactor_epoll_object->epfd, EPOLL_CTL_DEL, fd, NULL) < 0) {
         perror("epoll_ctl error: ");
         return TSW_ERR;
     }
