@@ -99,6 +99,7 @@ int tswServer_master_onReceive(tswReactor *reactor, tswEvent *tswev)
 		reactor->del(reactor, tswev->fd);
 		close(tswev->fd);
 		free(tswev);
+		reactor->event_num -= 1;
 		return TSW_OK;
 	}
 	buffer[n] = 0;
