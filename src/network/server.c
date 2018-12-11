@@ -60,7 +60,10 @@ int start(tswServer *serv, int listenfd)
 		    tswReactorEpoll *reactor_epoll_object = reactor->object;
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
-			connfd = tswev->event_handler(reactor, tswev);
+			if (tswev->event_handler(reactor, tswev) < 0) {
+				tswWarn("event_handler error");
+				continue;
+			}
 		}
 	}
 
@@ -82,7 +85,7 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 		return TSW_ERR;
 	}
 
-	return connfd;
+	return TSW_OK;
 }
 
 int tswServer_master_onReceive(tswReactor *reactor, tswEvent *tswev)
