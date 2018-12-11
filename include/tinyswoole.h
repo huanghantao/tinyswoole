@@ -79,7 +79,7 @@ struct _tswReactorEpoll {
 typedef struct _tswEvent {
 	int fd;
 	int event;
-	int (*event_handler)(tswReactor *reactor, tswEvent *tswev);
+	int (*event_handler)(tswReactor *reactor, tswEvent *tswev); // specific event handler
 } tswEvent;
 
 struct _tswReactor {
@@ -89,13 +89,20 @@ struct _tswReactor {
 
 	tswEvent tswev[MAXEVENTS + 1];
 
+	/*
+	 * Used to manage handles
+	 * 
+	 * add: Add a handle and register the event of interest and the event handler that was executed when the event occurred.
+	 * set: Set an event of interest to a handle
+	 * del: Delete a handle
+	*/
 	int (*add)(tswReactor *reactor, int fd, int tsw_event_type, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev));
 	int (*set)(tswReactor *reactor, int fd, int event_type);
 	int (*del)(tswReactor *reactor, int fd);
-	int (*wait)(tswReactor *reactor);
-	int (*free)(tswReactor *reactor);
-
-	int (*setHandler)(tswEvent *tswev, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev));
+	
+	int (*wait)(tswReactor *reactor); // Waiting for events
+	int (*free)(tswReactor *reactor); // free the reactor manager
+	int (*setHandler)(tswEvent *tswev, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev)); // set event handler
 };
 
 int tswReactor_create(tswReactor *reactor, int max_event_num);
