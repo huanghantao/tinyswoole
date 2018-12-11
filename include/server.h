@@ -20,8 +20,8 @@ struct _tswServer {
 tswServer *tswServer_new(void);
 int start(tswServer *serv, int listenfd);
 int tswServer_master_loop(tswServer *serv, int listenfd);
-int tswServer_master_onAccept(tswReactor *reactor, int listenfd);
-int tswServer_master_onReceive(tswReactor *reactor, int fd);
+int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev);
+int tswServer_master_onReceive(tswReactor *reactor, tswEvent *tswev);
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length);
 int tswReactorThread_start(tswServer *serv, int listenfd);
 

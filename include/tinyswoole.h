@@ -79,7 +79,7 @@ struct _tswReactorEpoll {
 typedef struct _tswEvent {
 	int fd;
 	int event;
-	int (*event_handler)(tswReactor *reactor, int fd);
+	int (*event_handler)(tswReactor *reactor, tswEvent *tswev);
 } tswEvent;
 
 struct _tswReactor {
@@ -89,17 +89,17 @@ struct _tswReactor {
 
 	tswEvent tswev[MAXEVENTS + 1];
 
-	int (*add)(tswReactor *reactor, int fd, int tsw_event_type, int (*tswReactor_handler)(tswReactor *reactor, int fd));
+	int (*add)(tswReactor *reactor, int fd, int tsw_event_type, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev));
 	int (*set)(tswReactor *reactor, int fd, int event_type);
 	int (*del)(tswReactor *reactor, int fd);
 	int (*wait)(tswReactor *reactor);
 	int (*free)(tswReactor *reactor);
 
-	int (*setHandler)(tswEvent *tswev, int (*tswReactor_handler)(tswReactor *reactor, int fd));
+	int (*setHandler)(tswEvent *tswev, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev));
 };
 
 int tswReactor_create(tswReactor *reactor, int max_event_num);
 int tswReactorEpoll_create(tswReactor *reactor, int max_event_num);
-int tswReactor_setHandler(tswEvent *tswev, int (*tswReactor_handler)(tswReactor *reactor, int fd));
+int tswReactor_setHandler(tswEvent *tswev, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev));
 
 #endif /* TINYSWOOLE_H_ */

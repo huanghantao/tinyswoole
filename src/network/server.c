@@ -60,21 +60,21 @@ int start(tswServer *serv, int listenfd)
 		    tswReactorEpoll *reactor_epoll_object = reactor->object;
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
-			connfd = tswev->event_handler(reactor, tswev->fd);
+			connfd = tswev->event_handler(reactor, tswev);
 		}
 	}
 
 	close(listenfd);
 }
 
-int tswServer_master_onAccept(tswReactor *reactor, int listenfd)
+int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 {
 	int connfd;
 	socklen_t len;
 	struct sockaddr_in cliaddr;
 
 	len = sizeof(cliaddr);
-	connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &len);
+	connfd = accept(tswev->fd, (struct sockaddr *)&cliaddr, &len);
 	TSwooleG.serv->onConnect(connfd);
 
 	if (reactor->add(reactor, connfd, TSW_EVENT_READ, tswServer_master_onReceive) < 0) {
@@ -85,20 +85,20 @@ int tswServer_master_onAccept(tswReactor *reactor, int listenfd)
 	return connfd;
 }
 
-int tswServer_master_onReceive(tswReactor *reactor, int fd)
+int tswServer_master_onReceive(tswReactor *reactor, tswEvent *tswev)
 {
 	int n;
 	char buffer[MAX_BUF_SIZE];
 	tswReactorEpoll *reactor_epoll_object = reactor->object;
 
-	n = read(fd, buffer, MAX_BUF_SIZE);
+	n = read(tswev->fd, buffer, MAX_BUF_SIZE);
 	if (n == 0) {
-		epoll_del(reactor_epoll_object->epfd, fd);
-		close(fd);
+		epoll_del(reactor_epoll_object->epfd, tswev->fd);
+		close(tswev->fd);
 		return TSW_OK;
 	}
 	buffer[n] = 0;
-	TSwooleG.serv->onReceive(TSwooleG.serv, fd, buffer);
+	TSwooleG.serv->onReceive(TSwooleG.serv, tswev->fd, buffer);
 
 	return TSW_OK;
 }
