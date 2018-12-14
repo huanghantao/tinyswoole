@@ -13,7 +13,7 @@ static int setnonblocking(int fd)
     old_option = fcntl(fd, F_GETFL);
     new_option = old_option | O_NONBLOCK;
     if (fcntl(fd, F_SETFL, new_option) < 0) {
-        perror("fcntl error: ");
+        tswWarn("fcntl error: %s", strerror(errno));
         return TSW_ERR;
     }
 
@@ -52,7 +52,7 @@ static int tswReactorEpoll_del(tswReactor *reactor, int fd)
     tswReactorEpoll *reactor_epoll_object = reactor->object;
 
     if (epoll_ctl(reactor_epoll_object->epfd, EPOLL_CTL_DEL, fd, NULL) < 0) {
-        perror("epoll_ctl error: ");
+        tswWarn("epoll_ctl error: %s", strerror(errno));
         return TSW_ERR;
     }
     return TSW_OK;
@@ -72,7 +72,7 @@ static int tswReactorEpoll_wait(tswReactor *reactor)
     max_event_num = reactor->max_event_num;
 
 	if (events == NULL) {
-		tswWarn("malloc error.");
+		tswWarn("malloc error");
 		return TSW_ERR;
 	}
 
@@ -94,7 +94,7 @@ int tswReactorEpoll_create(tswReactor *reactor, int max_event_num)
 
     reactor_epoll_object = malloc(sizeof(tswReactorEpoll));
     if (reactor_epoll_object == NULL) {
-        tswWarn("malloc error.");
+        tswWarn("malloc error");
 		return TSW_ERR;
     }
 
@@ -106,7 +106,7 @@ int tswReactorEpoll_create(tswReactor *reactor, int max_event_num)
     }
     reactor_epoll_object->events = malloc(sizeof(struct epoll_event) * max_event_num);
     if (reactor_epoll_object->events == NULL) {
-        tswWarn("malloc error.");
+        tswWarn("malloc error");
         free(reactor_epoll_object);
 		return TSW_ERR;
     }
@@ -143,7 +143,7 @@ int epoll_add(tswReactor *reactor, int fd, int event_type, int (*tswReactor_hand
     e.events = event_type;
 
 	if (epoll_ctl(reactor_epoll_object->epfd, EPOLL_CTL_ADD, fd, &e) < 0) {
-        perror("epoll_ctl error: ");
+        tswWarn("epoll_ctl error: %s", strerror(errno));
         return TSW_ERR;
     }
 
@@ -160,7 +160,7 @@ int epoll_set_output(int epollfd, int fd)
 	e.data.fd = fd;
 	e.events = EPOLLOUT | EPOLLET;
 	if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &e) < 0) {
-        perror("epoll_ctl error: ");
+        tswWarn("epoll_ctl error: %s", strerror(errno));
         return TSW_ERR;
     }
 
@@ -177,7 +177,7 @@ int epoll_event_set(int epollfd, int fd, int event_type)
     e.data.fd = fd;
     e.events = event_type;
     if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &e) < 0) {
-        perror("epoll_ctl error: ");
+        tswWarn("epoll_ctl error: %s", strerror(errno));
         return TSW_ERR;
     }
 
