@@ -33,9 +33,11 @@ PHP_METHOD(tinyswoole_server, __construct)
 
 	sock = tswSocket_create(sock_type);
 	if (sock < 0) {
+		tinyswoole_php_fatal_error(E_ERROR, "tswSocket_create error");
 		RETURN_NULL();
 	}
 	if (tswSocket_bind(sock, sock_type, serv_host, serv_port) < 0) {
+		tinyswoole_php_fatal_error(E_ERROR, "tswSocket_bind error");
 		RETURN_NULL();
 	}
 

@@ -1,3 +1,5 @@
+#include <errno.h>
+#include <string.h>
 #include "../include/tinyswoole.h"
 #include "../include/socket.h"
 
@@ -32,6 +34,7 @@ int tswSocket_bind(int sock, int type, char *host, int port)
 		servaddr.sin_port = htons(port);
 		ret = bind(sock, (struct sockaddr *)&servaddr, sizeof(servaddr));
 		if (ret < 0) {
+			tswWarn("%s", strerror(errno));
 			return TSW_ERR; 
 		}
 	} else {

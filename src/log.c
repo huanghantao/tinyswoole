@@ -36,7 +36,6 @@ void tswLog_put(int level, char *cnt)
 			level_str = "INFO";
 			break;
 	}
-
     
 	t = time(NULL);
 	p = localtime(&t);

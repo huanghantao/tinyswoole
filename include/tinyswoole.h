@@ -17,7 +17,7 @@
 char tsw_error[TSW_ERROR_MSG_SIZE];
 
 #define tswWarn(str, ...)                                                         \
-	snprintf(tsw_error, TSW_ERROR_MSG_SIZE, "%s: " str, __func__, ##__VA_ARGS__); \
+	snprintf(tsw_error, TSW_ERROR_MSG_SIZE, "%s: "str" in %s on line %d.", __func__, ##__VA_ARGS__, __FILE__, __LINE__); \
 	tswLog_put(TSW_LOG_WARNING, tsw_error);
 
 enum tswFd_type {
