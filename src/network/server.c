@@ -29,24 +29,26 @@ tswServer *tswServer_new(void)
 
 int start(tswServer *serv, int listenfd)
 {
-	listen(listenfd, LISTENQ);
+	if (listen(listenfd, LISTENQ) < 0) {
+		tswWarn("%s", strerror(errno));
+	}
 	if (serv->onStart != NULL) {
 		serv->onStart();
 	}
 
 	tswReactor *reactor = malloc(sizeof(tswReactor));
 	if (reactor == NULL) {
-		tswWarn("malloc error.");
+		tswWarn("%s", "malloc error");
 		return TSW_ERR;
 	}
 
 	if (tswReactor_create(reactor, MAXEVENTS) < 0) {
-		tswWarn("tswReactor_create error.");
+		tswWarn("%s", "tswReactor_create error");
 		return TSW_ERR;
 	}
 
 	if (reactor->add(reactor, listenfd, TSW_EVENT_READ, tswServer_master_onAccept) < 0) {
-		tswWarn("reactor add error.");
+		tswWarn("%s", "reactor add error");
 		return TSW_ERR;
 	}
 
@@ -61,7 +63,7 @@ int start(tswServer *serv, int listenfd)
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
 			if (tswev->event_handler(reactor, tswev) < 0) {
-				tswWarn("event_handler error");
+				tswWarn("%s", "event_handler error");
 				continue;
 			}
 		}
@@ -81,7 +83,7 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 	TSwooleG.serv->onConnect(connfd);
 
 	if (reactor->add(reactor, connfd, TSW_EVENT_READ, tswServer_master_onReceive) < 0) {
-		tswWarn("reactor add error.");
+		tswWarn("%s", "reactor add error");
 		return TSW_ERR;
 	}
 
