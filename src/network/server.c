@@ -80,6 +80,10 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 
 	len = sizeof(cliaddr);
 	connfd = accept(tswev->fd, (struct sockaddr *)&cliaddr, &len);
+	if (connfd < 0) {
+		tswWarn("%s", "accept error");
+		return TSW_ERR;
+	}
 	TSwooleG.serv->onConnect(connfd);
 
 	if (reactor->add(reactor, connfd, TSW_EVENT_READ, tswServer_master_onReceive) < 0) {
