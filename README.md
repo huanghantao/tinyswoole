@@ -12,6 +12,14 @@ $serv->start();
 
 ```
 
+## Setting parameters
+
+```php
+$serv->set([
+    'reactor_num' => 2,
+]);
+```
+
 ## Increase the server start event callback
 
 ```php
