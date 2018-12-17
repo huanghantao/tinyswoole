@@ -76,7 +76,6 @@ PHP_MINIT_FUNCTION(tinyswoole)
 
 	zend_declare_property_null(tinyswoole_server_ce_ptr, ZEND_STRL("ip"), ZEND_ACC_PRIVATE);
 	zend_declare_property_null(tinyswoole_server_ce_ptr, ZEND_STRL("port"), ZEND_ACC_PRIVATE);
-	zend_declare_property_null(tinyswoole_server_ce_ptr, ZEND_STRL("sock"), ZEND_ACC_PRIVATE);
 
 	return SUCCESS;
 }

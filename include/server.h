@@ -11,6 +11,7 @@ int listen_epollfd;
 int conn_epollfd;
 
 struct _tswServer {
+    int serv_sock;
     void (*onStart)(void);
     void (*onConnect)(int fd);
     void (*onReceive)(tswServer *serv, int fd, char *data);
@@ -18,7 +19,7 @@ struct _tswServer {
 };
 
 tswServer *tswServer_new(void);
-int start(tswServer *serv, int listenfd);
+int start(tswServer *serv);
 int tswServer_master_loop(tswServer *serv, int listenfd);
 int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev);
 int tswServer_master_onReceive(tswReactor *reactor, tswEvent *tswev);

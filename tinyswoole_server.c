@@ -40,11 +40,11 @@ PHP_METHOD(tinyswoole_server, __construct)
 		tinyswoole_php_fatal_error(E_ERROR, "tswSocket_bind error");
 		RETURN_NULL();
 	}
+	serv->serv_sock = sock;
 
 	server_object = getThis(); // server_object is a global variable
 	zend_update_property_string(tinyswoole_server_ce_ptr, server_object, "ip", sizeof("ip") - 1, serv_host);
 	zend_update_property_long(tinyswoole_server_ce_ptr, server_object, "port", sizeof("port") - 1, serv_port);
-	zend_update_property_long(tinyswoole_server_ce_ptr, server_object, "sock", sizeof("sock") - 1, sock);
 }
 
 PHP_METHOD(tinyswoole_server, on)
@@ -97,12 +97,10 @@ PHP_METHOD(tinyswoole_server, start)
 	zval *sock;
 	tswServer *serv;
 
-	sock = tsw_zend_read_property(tinyswoole_server_ce_ptr, getThis(), "sock", sizeof("sock") - 1, 0);
-
 	serv = TSwooleG.serv;
 	php_tswoole_register_callback(serv);
 
-	start(serv, Z_LVAL(*sock));
+	start(serv);
 }
 
 PHP_METHOD(tinyswoole_server, send)

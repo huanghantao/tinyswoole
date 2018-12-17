@@ -27,9 +27,9 @@ tswServer *tswServer_new(void)
 	return serv;
 }
 
-int start(tswServer *serv, int listenfd)
+int start(tswServer *serv)
 {
-	if (listen(listenfd, LISTENQ) < 0) {
+	if (listen(serv->serv_sock, LISTENQ) < 0) {
 		tswWarn("%s", strerror(errno));
 	}
 	if (serv->onStart != NULL) {
@@ -47,7 +47,7 @@ int start(tswServer *serv, int listenfd)
 		return TSW_ERR;
 	}
 
-	if (reactor->add(reactor, listenfd, TSW_EVENT_READ, tswServer_master_onAccept) < 0) {
+	if (reactor->add(reactor, serv->serv_sock, TSW_EVENT_READ, tswServer_master_onAccept) < 0) {
 		tswWarn("%s", "reactor add error");
 		return TSW_ERR;
 	}
@@ -69,7 +69,7 @@ int start(tswServer *serv, int listenfd)
 		}
 	}
 
-	close(listenfd);
+	close(serv->serv_sock);
 }
 
 int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
