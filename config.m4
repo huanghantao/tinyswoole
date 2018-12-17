@@ -10,6 +10,7 @@ if test "$PHP_TINYSWOOLE" != "no"; then
   src/log.c \
   src/socket.c \
   src/network/server.c \
+  src/network/reactor_thread.c \
   src/reactor/epoll.c \
   src/reactor/base.c"
   PHP_NEW_EXTENSION(tinyswoole, $source_file, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)

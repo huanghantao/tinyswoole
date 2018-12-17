@@ -12,10 +12,19 @@ int conn_epollfd;
 
 struct _tswServer {
     int serv_sock;
+    int reactor_num;
+
     void (*onStart)(void);
     void (*onConnect)(int fd);
     void (*onReceive)(tswServer *serv, int fd, char *data);
     void (*onClose)(void);
+
+    tswReactorThread *reactor_threads;
+};
+
+struct _tswReactorThread {
+    pthread_t thread_id;
+    tswReactor reactor;
 };
 
 tswServer *tswServer_new(void);
@@ -25,5 +34,7 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev);
 int tswServer_master_onReceive(tswReactor *reactor, tswEvent *tswev);
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length);
 int tswReactorThread_start(tswServer *serv, int listenfd);
+
+int tswReactorThread_create(tswServer *serv);
 
 #endif /* TSW_SERVER_H_ */

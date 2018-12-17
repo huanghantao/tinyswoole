@@ -41,6 +41,7 @@ typedef struct _tswServerG tswServerG;
 typedef struct _tswThreadParam tswThreadParam;
 typedef struct _tswReactor tswReactor;
 typedef struct _tswReactorEpoll tswReactorEpoll;
+typedef struct _tswReactorThread tswReactorThread;
 
 #define TSW_IPC_MAX_SIZE 8192
 #define TSW_BUFFER_SIZE (TSW_IPC_MAX_SIZE - sizeof(tswDataHead))
