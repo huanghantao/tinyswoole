@@ -89,18 +89,20 @@ void php_tswoole_onConnect(int fd);
 void php_tswoole_onReceive(tswServer *serv, int fd, char *data);
 
 PHP_METHOD(tinyswoole_server, __construct);
+PHP_METHOD(tinyswoole_server, set);
 PHP_METHOD(tinyswoole_server, start);
 PHP_METHOD(tinyswoole_server, on);
 PHP_METHOD(tinyswoole_server, send);
 PHP_FUNCTION(call_function);
 
+extern PHPAPI int php_array_merge(HashTable *dest, HashTable *src);
+
+#define php_tinyswoole_array_get_value(ht, str, v)     ((v = zend_hash_str_find(ht, str, sizeof(str)-1)) && !ZVAL_IS_NULL(v))
+#define php_tinyswoole_array_separate(arr)       zval *_new_##arr;\
+    TSW_MAKE_STD_ZVAL(_new_##arr);\
+    array_init(_new_##arr);\
+    php_array_merge(Z_ARRVAL_P(_new_##arr), Z_ARRVAL_P(arr));\
+    arr = _new_##arr;
+
 #endif	/* PHP_TINYSWOOLE_H */
 
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

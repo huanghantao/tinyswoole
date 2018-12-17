@@ -47,6 +47,28 @@ PHP_METHOD(tinyswoole_server, __construct)
 	zend_update_property_long(tinyswoole_server_ce_ptr, server_object, "port", sizeof("port") - 1, serv_port);
 }
 
+PHP_METHOD(tinyswoole_server, set)
+{
+	zval *zset = NULL;
+	tswServer *serv;
+	HashTable *vht;
+	zval *v;
+
+	serv = TSwooleG.serv;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_ARRAY(zset)
+    ZEND_PARSE_PARAMETERS_END_EX(RETURN_FALSE);
+
+	php_tinyswoole_array_separate(zset);
+    vht = Z_ARRVAL_P(zset);
+
+	if (php_tinyswoole_array_get_value(vht, "reactor_num", v)) {
+        convert_to_long(v);
+        serv->reactor_num = (uint16_t) Z_LVAL_P(v);
+    }
+}
+
 PHP_METHOD(tinyswoole_server, on)
 {
 	int i;
