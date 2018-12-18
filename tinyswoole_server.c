@@ -43,8 +43,8 @@ PHP_METHOD(tinyswoole_server, __construct)
 	serv->serv_sock = sock;
 
 	server_object = getThis(); // server_object is a global variable
-	zend_update_property_string(tinyswoole_server_ce_ptr, server_object, "ip", sizeof("ip") - 1, serv_host);
-	zend_update_property_long(tinyswoole_server_ce_ptr, server_object, "port", sizeof("port") - 1, serv_port);
+	zend_update_property_string(tinyswoole_server_ce_ptr, server_object, ZEND_STRL("ip"), serv_host);
+	zend_update_property_long(tinyswoole_server_ce_ptr, server_object, ZEND_STRL("port"), serv_port);
 }
 
 PHP_METHOD(tinyswoole_server, set)
