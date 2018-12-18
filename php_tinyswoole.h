@@ -83,6 +83,8 @@ extern zend_class_entry *tinyswoole_server_ce_ptr;
 extern tswServerG TSwooleG;
 
 zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent);
+char *tsw_zend_println_zval_type(zval *v);
+
 void php_tswoole_register_callback(tswServer *serv);
 void php_tswoole_onStart(void);
 void php_tswoole_onConnect(int fd);

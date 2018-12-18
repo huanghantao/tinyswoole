@@ -132,6 +132,47 @@ zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char 
     return zend_read_property(class_ptr, obj, s, len, silent, &rv);
 }
 
+char *tsw_zend_println_zval_type(zval *v)
+{
+	switch (Z_TYPE_P(v)) {
+		case IS_UNDEF:
+			printf("UNDEFINE\n");
+			break;
+		case IS_NULL:
+			printf("NULL\n");
+			break;
+		case IS_FALSE:
+			printf("FALSE\n");
+			break;
+		case IS_TRUE:
+			printf("TRUE\n");
+			break;
+		case IS_LONG:
+			printf("LONG\n");
+			break;
+		case IS_DOUBLE:
+			printf("DOUBLE\n");
+			break;
+		case IS_STRING:
+			printf("STRING\n");
+			break;
+		case IS_ARRAY:
+			printf("ARRAY\n");
+			break;
+		case IS_OBJECT:
+			printf("OBJECT\n");
+			break;
+		case IS_RESOURCE:
+			printf("RESOURCE\n");
+			break;
+		case IS_REFERENCE:
+			printf("REFERENCE\n");
+			break;
+		default:
+			break;
+	}
+}
+
 #ifdef COMPILE_DL_TINYSWOOLE
 #ifdef ZTS
 ZEND_TSRMLS_CACHE_DEFINE()
