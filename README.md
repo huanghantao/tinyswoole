@@ -12,7 +12,7 @@ $serv->start();
 
 ```
 
-## Setting parameters
+## Set parameters
 
 ```php
 $serv->set([
