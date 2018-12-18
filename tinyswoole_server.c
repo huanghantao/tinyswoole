@@ -65,8 +65,10 @@ PHP_METHOD(tinyswoole_server, set)
 
 	if (php_tinyswoole_array_get_value(vht, "reactor_num", v)) {
         convert_to_long(v);
-        serv->reactor_num = (uint16_t) Z_LVAL_P(v);
-    }
+        serv->reactor_num = (uint16_t)Z_LVAL_P(v);
+    } else {
+		serv->reactor_num = 2;
+	}
 }
 
 PHP_METHOD(tinyswoole_server, on)
