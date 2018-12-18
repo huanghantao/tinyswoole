@@ -27,6 +27,9 @@ tswServer *tswServer_new(void)
 	return serv;
 }
 
+/*
+ * Create reactor threads
+*/
 static int tswServer_start_proxy(tswServer *serv)
 {
 	tswReactor *main_reactor = malloc(sizeof(tswReactor));
@@ -122,7 +125,7 @@ int tswServer_master_onReceive(tswReactor *reactor, tswEvent *tswev)
 	char buffer[MAX_BUF_SIZE];
 	tswReactorEpoll *reactor_epoll_object = reactor->object;
 
-	n = read(tswev->fd, buffer, MAX_BUF_SIZE);
+	n = recv(tswev->fd, buffer, MAX_BUF_SIZE, 0);
 	if (n == 0) {
 		reactor->del(reactor, tswev->fd);
 		close(tswev->fd);
