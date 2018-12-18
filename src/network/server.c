@@ -27,8 +27,29 @@ tswServer *tswServer_new(void)
 	return serv;
 }
 
-int start(tswServer *serv)
+static int tswServer_start_proxy(tswServer *serv)
 {
+	tswReactor *main_reactor = malloc(sizeof(tswReactor));
+	if (main_reactor == NULL) {
+		tswWarn("%s", "malloc error");
+		return TSW_ERR;
+	}
+
+	if (tswReactor_create(main_reactor, MAXEVENTS) < 0) {
+		tswWarn("%s", "tswReactor_create error");
+		return TSW_ERR;
+	}
+
+	if (tswReactorThread_create(serv) < 0) {
+		tswWarn("%s", "tswReactorThread_create error");
+		return TSW_ERR;
+	}
+
+	if (tswReactorThread_start(serv) < 0) {
+		tswWarn("%s", "tswReactorThread_start error");
+		return TSW_ERR;
+	}
+
 	if (listen(serv->serv_sock, LISTENQ) < 0) {
 		tswWarn("%s", strerror(errno));
 	}
@@ -36,18 +57,7 @@ int start(tswServer *serv)
 		serv->onStart();
 	}
 
-	tswReactor *reactor = malloc(sizeof(tswReactor));
-	if (reactor == NULL) {
-		tswWarn("%s", "malloc error");
-		return TSW_ERR;
-	}
-
-	if (tswReactor_create(reactor, MAXEVENTS) < 0) {
-		tswWarn("%s", "tswReactor_create error");
-		return TSW_ERR;
-	}
-
-	if (reactor->add(reactor, serv->serv_sock, TSW_EVENT_READ, tswServer_master_onAccept) < 0) {
+	if (main_reactor->add(main_reactor, serv->serv_sock, TSW_EVENT_READ, tswServer_master_onAccept) < 0) {
 		tswWarn("%s", "reactor add error");
 		return TSW_ERR;
 	}
@@ -55,14 +65,14 @@ int start(tswServer *serv)
 	for (;;) {
 		int nfds;
 
-		nfds = reactor->wait(reactor);
+		nfds = main_reactor->wait(main_reactor);
 
 		for (int i = 0; i < nfds; i++) {
 			int connfd;
-		    tswReactorEpoll *reactor_epoll_object = reactor->object;
+		    tswReactorEpoll *reactor_epoll_object = main_reactor->object;
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
-			if (tswev->event_handler(reactor, tswev) < 0) {
+			if (tswev->event_handler(main_reactor, tswev) < 0) {
 				tswWarn("%s", "event_handler error");
 				continue;
 			}
@@ -70,6 +80,18 @@ int start(tswServer *serv)
 	}
 
 	close(serv->serv_sock);
+
+	return TSW_OK;
+}
+
+int tswServer_start(tswServer *serv)
+{
+	if (tswServer_start_proxy(serv) < 0) {
+		tswWarn("%s", "tswServer_start_proxy error");
+		return TSW_ERR;
+	}
+
+	return TSW_OK;
 }
 
 int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)

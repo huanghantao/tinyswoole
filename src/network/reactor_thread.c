@@ -8,4 +8,15 @@ int tswReactorThread_create(tswServer *serv)
         tswWarn("%s", "malloc error");
         return TSW_ERR;
     }
+
+    return TSW_OK;
+}
+
+int tswReactorThread_start(tswServer *serv)
+{
+    for (int i = 0; i < serv->reactor_num; i++) {
+        // create thread
+    }
+
+    return TSW_OK;
 }

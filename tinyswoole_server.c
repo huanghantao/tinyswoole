@@ -122,7 +122,7 @@ PHP_METHOD(tinyswoole_server, start)
 	serv = TSwooleG.serv;
 	php_tswoole_register_callback(serv);
 
-	start(serv);
+	tswServer_start(serv);
 }
 
 PHP_METHOD(tinyswoole_server, send)
