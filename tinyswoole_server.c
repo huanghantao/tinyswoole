@@ -60,7 +60,7 @@ PHP_METHOD(tinyswoole_server, set)
         Z_PARAM_ARRAY(zset)
     ZEND_PARSE_PARAMETERS_END_EX(RETURN_FALSE);
 
-	php_tinyswoole_array_separate(zset);
+	// php_tinyswoole_array_separate(zset);
     vht = Z_ARRVAL_P(zset);
 
 	if (php_tinyswoole_array_get_value(vht, "reactor_num", v)) {
