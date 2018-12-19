@@ -76,11 +76,11 @@ static int tswServer_start_proxy(tswServer *serv)
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
 			tsw_reactor_thread = &(serv->reactor_threads[i % serv->reactor_num]);
+			tswDebug("%s", "master thread handler the event");
 			if (tswev->event_handler(&(tsw_reactor_thread->reactor), tswev) < 0) {
 				tswWarn("%s", "event_handler error");
 				continue;
 			}
-			tswDebug("%s", "master thread handler the event");
 		}
 	}
 
