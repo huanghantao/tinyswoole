@@ -15,15 +15,15 @@ static int tswReactorThread_loop(tswThreadParam *param)
 
 		nfds = reactor->wait(reactor);
         for (int i = 0; i < nfds; i++) {
-			int connfd;
-		    tswReactorEpoll *reactor_epoll_object = reactor->object;
+            int connfd;
+            tswReactorEpoll *reactor_epoll_object = reactor->object;
 
-			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
+            tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
             if (tswev->event_handler(reactor, tswev) < 0) {
-				tswWarn("%s", "event_handler error");
-				continue;
-			}
-		}
+                tswWarn("%s", "event_handler error");
+                continue;
+            }
+        }
     }
 }
 
