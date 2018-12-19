@@ -80,6 +80,7 @@ static int tswServer_start_proxy(tswServer *serv)
 				tswWarn("%s", "event_handler error");
 				continue;
 			}
+			tswDebug("%s", "master thread handler the event");
 		}
 	}
 
@@ -90,6 +91,7 @@ static int tswServer_start_proxy(tswServer *serv)
 
 int tswServer_start(tswServer *serv)
 {
+	tswDebug("%s", "The master thread started successfully");
 	if (tswServer_start_proxy(serv) < 0) {
 		tswWarn("%s", "tswServer_start_proxy error");
 		return TSW_ERR;
