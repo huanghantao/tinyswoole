@@ -13,7 +13,7 @@ static int tswReactorThread_loop(tswThreadParam *param)
     for (;;) {
         int nfds;
 
-		nfds = reactor->wait(reactor);
+        nfds = reactor->wait(reactor);
         for (int i = 0; i < nfds; i++) {
             int connfd;
             tswReactorEpoll *reactor_epoll_object = reactor->object;
