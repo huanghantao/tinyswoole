@@ -66,8 +66,7 @@ struct _tswServerG {
 
 struct _tswThreadParam {
 	void *object;
-	int listenfd;
-	int pti;
+	int pti; // Used to mark the threads, counting from 0
 };
 
 struct _tswReactorEpoll {

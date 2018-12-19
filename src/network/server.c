@@ -69,13 +69,14 @@ static int tswServer_start_proxy(tswServer *serv)
 		int nfds;
 
 		nfds = main_reactor->wait(main_reactor);
-
 		for (int i = 0; i < nfds; i++) {
 			int connfd;
+			tswReactorThread *tsw_reactor_thread;
 		    tswReactorEpoll *reactor_epoll_object = main_reactor->object;
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
-			if (tswev->event_handler(main_reactor, tswev) < 0) {
+			tsw_reactor_thread = &(serv->reactor_threads[i % serv->reactor_num]);
+			if (tswev->event_handler(&(tsw_reactor_thread->reactor), tswev) < 0) {
 				tswWarn("%s", "event_handler error");
 				continue;
 			}
@@ -97,6 +98,9 @@ int tswServer_start(tswServer *serv)
 	return TSW_OK;
 }
 
+/*
+ * reactor: Used to manage handle in tswEvent
+*/
 int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 {
 	int connfd;
@@ -111,7 +115,7 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 	}
 	TSwooleG.serv->onConnect(connfd);
 
-	if (reactor->add(reactor, connfd, TSW_EVENT_READ, tswServer_master_onReceive) < 0) {
+	if (reactor->add(reactor, connfd, TSW_EVENT_READ, tswServer_reactor_onReceive) < 0) {
 		tswWarn("%s", "reactor add error");
 		return TSW_ERR;
 	}
@@ -119,7 +123,7 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 	return TSW_OK;
 }
 
-int tswServer_master_onReceive(tswReactor *reactor, tswEvent *tswev)
+int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 {
 	int n;
 	char buffer[MAX_BUF_SIZE];
