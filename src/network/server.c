@@ -23,6 +23,7 @@ tswServer *tswServer_new(void)
 	serv->onConnect = NULL;
 	serv->onReceive = NULL;
 	serv->onClose = NULL;
+	serv->onReactorStart = NULL;
 
 	return serv;
 }
@@ -91,7 +92,7 @@ static int tswServer_start_proxy(tswServer *serv)
 
 int tswServer_start(tswServer *serv)
 {
-	tswDebug("%s", "The master thread started successfully");
+	serv->onMasterStart();
 	if (tswServer_start_proxy(serv) < 0) {
 		tswWarn("%s", "tswServer_start_proxy error");
 		return TSW_ERR;
@@ -143,6 +144,16 @@ int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 	TSwooleG.serv->onReceive(TSwooleG.serv, tswev->fd, buffer);
 
 	return TSW_OK;
+}
+
+void tswServer_master_onStart(void)
+{
+	tswDebug("%s", "The master thread started successfully");
+}
+
+void tswServer_reactor_onStart(int reactor_id)
+{
+	tswDebug("reactor thread [%d] started successfully", reactor_id);
 }
 
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length)

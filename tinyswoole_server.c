@@ -152,6 +152,9 @@ void php_tswoole_register_callback(tswServer *serv)
 	if (php_tsw_server_callbacks[TSW_SERVER_CB_onReceive] != NULL) {
 		serv->onReceive = php_tswoole_onReceive;
 	}
+
+	serv->onMasterStart = tswServer_master_onStart;
+	serv->onReactorStart = tswServer_reactor_onStart;
 }
 
 void php_tswoole_onStart(void)

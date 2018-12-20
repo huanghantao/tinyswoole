@@ -66,7 +66,7 @@ int tswReactorThread_start(tswServer *serv)
         param->pti = i;
         param->object = serv;
 
-	    tswDebug("reactor thread [%d] started successfully", i);
+	    serv->onReactorStart(i);
         if (pthread_create(&pidt, NULL, (void * (*)(void *))tswReactorThread_loop, (void *)param) < 0) {
             tswWarn("%s", "pthread_create error");
         }
