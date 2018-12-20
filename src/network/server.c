@@ -58,7 +58,7 @@ static int tswServer_start_proxy(tswServer *serv)
 		tswWarn("%s", strerror(errno));
 	}
 	if (serv->onStart != NULL) {
-		serv->onStart();
+		serv->onStart(serv);
 	}
 
 	if (main_reactor->add(main_reactor, serv->serv_sock, TSW_EVENT_READ, tswServer_master_onAccept) < 0) {
@@ -154,6 +154,11 @@ void tswServer_master_onStart(void)
 void tswServer_reactor_onStart(int reactor_id)
 {
 	tswDebug("reactor thread [%d] started successfully", reactor_id);
+}
+
+int tswServer_create_worker(tswServer *serv)
+{
+
 }
 
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length)

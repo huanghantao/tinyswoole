@@ -69,6 +69,13 @@ PHP_METHOD(tinyswoole_server, set)
     } else {
 		serv->reactor_num = 2;
 	}
+
+	if (php_tinyswoole_array_get_value(vht, "worker_num", v)) {
+        convert_to_long(v);
+        serv->worker_num = (uint16_t)Z_LVAL_P(v);
+    } else {
+		serv->worker_num = 2;
+	}
 }
 
 PHP_METHOD(tinyswoole_server, on)
@@ -157,10 +164,12 @@ void php_tswoole_register_callback(tswServer *serv)
 	serv->onReactorStart = tswServer_reactor_onStart;
 }
 
-void php_tswoole_onStart(void)
+void php_tswoole_onStart(tswServer *serv)
 {
 	zval  retval;
 
+
+	tswDebug("reactor thread num: %d, worker process num: %d", serv->reactor_num, serv->worker_num);
 	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onStart], &retval, 0, NULL, 0, NULL);
 }
 

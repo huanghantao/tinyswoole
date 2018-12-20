@@ -86,7 +86,7 @@ zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char 
 char *tsw_zend_println_zval_type(zval *v);
 
 void php_tswoole_register_callback(tswServer *serv);
-void php_tswoole_onStart(void);
+void php_tswoole_onStart(tswServer *serv);
 void php_tswoole_onConnect(int fd);
 void php_tswoole_onReceive(tswServer *serv, int fd, char *data);
 
