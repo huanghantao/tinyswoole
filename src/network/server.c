@@ -7,6 +7,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include "tswoole_config.h"
 #include "../../include/server.h"
 #include "../../include/epoll.h"
@@ -93,6 +94,13 @@ static int tswServer_start_proxy(tswServer *serv)
 int tswServer_start(tswServer *serv)
 {
 	serv->onMasterStart();
+
+	for (int i = 0; i < serv->worker_num; i++) {
+		if (tswServer_create_worker(serv, i) < 0) {
+			return TSW_ERR;
+		}
+	}
+	
 	if (tswServer_start_proxy(serv) < 0) {
 		tswWarn("%s", "tswServer_start_proxy error");
 		return TSW_ERR;
@@ -148,7 +156,7 @@ int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 
 void tswServer_master_onStart(void)
 {
-	tswDebug("%s", "The master thread started successfully");
+	tswDebug("%s", "master thread started successfully");
 }
 
 void tswServer_reactor_onStart(int reactor_id)
@@ -156,9 +164,22 @@ void tswServer_reactor_onStart(int reactor_id)
 	tswDebug("reactor thread [%d] started successfully", reactor_id);
 }
 
-int tswServer_create_worker(tswServer *serv)
+int tswServer_create_worker(tswServer *serv, int worker_id)
 {
+	pid_t pid;
 
+	pid = fork();
+	if (pid > 0) {
+		return pid;
+	}
+
+	tswDebug("worker process [%d] started successfully", worker_id);
+	for (;;) {
+		tswDebug("worker process [%d] is running...", worker_id);
+		sleep(1);
+	}
+
+	return TSW_OK;
 }
 
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length)
