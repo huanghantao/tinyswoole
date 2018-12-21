@@ -58,7 +58,9 @@ ZEND_END_MODULE_GLOBALS(tinyswoole)
 ZEND_TSRMLS_CACHE_EXTERN()
 #endif
 
+#include "include/epoll.h"
 #include "include/log.h"
+#include "include/process_pool.h"
 #include "include/server.h"
 #include "include/socket.h"
 #include "include/tinyswoole.h"

@@ -11,6 +11,7 @@
 #include "tswoole_config.h"
 #include "../../include/server.h"
 #include "../../include/epoll.h"
+#include "../../include/process_pool.h"
 
 tswServer *tswServer_new(void)
 {
@@ -93,14 +94,26 @@ static int tswServer_start_proxy(tswServer *serv)
 
 int tswServer_start(tswServer *serv)
 {
-	serv->onMasterStart();
+	int i;
+	tswProcessPool *pool;
 
-	for (int i = 0; i < serv->worker_num; i++) {
+	serv->onMasterStart();
+	pool = (tswProcessPool *)malloc(sizeof(tswProcessPool));
+	if (pool == NULL) {
+		tswWarn("%s", "malloc error");
+		return TSW_ERR;
+	}
+	if (tswProcessPool_create(pool, serv->worker_num) < 0) {
+		tswWarn("%s", "tswProcessPool_create error");
+		return TSW_ERR;
+	}
+
+	for (i = 0; i < serv->worker_num; i++) {
 		if (tswServer_create_worker(serv, i) < 0) {
 			return TSW_ERR;
 		}
 	}
-	
+
 	if (tswServer_start_proxy(serv) < 0) {
 		tswWarn("%s", "tswServer_start_proxy error");
 		return TSW_ERR;
@@ -162,24 +175,6 @@ void tswServer_master_onStart(void)
 void tswServer_reactor_onStart(int reactor_id)
 {
 	tswDebug("reactor thread [%d] started successfully", reactor_id);
-}
-
-int tswServer_create_worker(tswServer *serv, int worker_id)
-{
-	pid_t pid;
-
-	pid = fork();
-	if (pid > 0) {
-		return pid;
-	}
-
-	tswDebug("worker process [%d] started successfully", worker_id);
-	for (;;) {
-		tswDebug("worker process [%d] is running...", worker_id);
-		sleep(1);
-	}
-
-	return TSW_OK;
 }
 
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length)

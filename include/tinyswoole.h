@@ -41,12 +41,13 @@ typedef struct _tswEvent tswEvent;
 typedef struct _tswServer tswServer;
 typedef struct _tswDataHead tswDataHead;
 typedef struct _tswEventData tswEventData;
-typedef struct _tswWorker tswWorker;
 typedef struct _tswServerG tswServerG;
 typedef struct _tswThreadParam tswThreadParam;
 typedef struct _tswReactor tswReactor;
 typedef struct _tswReactorEpoll tswReactorEpoll;
 typedef struct _tswReactorThread tswReactorThread;
+typedef struct _tswWorker tswWorker;
+typedef struct _tswProcessPool tswProcessPool;
 
 #define TSW_IPC_MAX_SIZE 8192
 #define TSW_BUFFER_SIZE (TSW_IPC_MAX_SIZE - sizeof(tswDataHead))
@@ -59,10 +60,6 @@ struct _tswDataHead {
 struct _tswEventData {
 	tswDataHead info;
 	char data[TSW_BUFFER_SIZE];
-};
-
-struct _tswWorker {
-	int pid;
 };
 
 struct _tswServerG {
@@ -113,5 +110,7 @@ struct _tswReactor {
 int tswReactor_create(tswReactor *reactor, int max_event_num);
 int tswReactorEpoll_create(tswReactor *reactor, int max_event_num);
 int tswReactor_setHandler(tswEvent *tswev, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev));
+
+
 
 #endif /* TINYSWOOLE_H_ */
