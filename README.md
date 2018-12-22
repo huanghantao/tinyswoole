@@ -1,20 +1,28 @@
+## Define specifications for functions
+
+A word that begins with TSW followed by a capitalized word. For example:
+
+```c
+tswReactor_create()
+```
+
 ## File
 
 ### php_tinyswoole.h
 
-- Declare external variables for zend_class_entry
+- Declare external variables for zend_class_entry.
 
 - Declare the common functions and methods of classes.
 
 ### tinyswoole.c
 
-- Define parameter information for the class methods
-- Register class to the zend engine
-- Register class methods to the zend engine
+- Define parameter information for the class methods.
+- Register class to the zend engine.
+- Register class methods to the zend engine.
 
 ### tinyswoole_server.c
 
-- Implement the methods of the TinySwoole class
+- Implement the methods of the TinySwoole class.
 
 
 
