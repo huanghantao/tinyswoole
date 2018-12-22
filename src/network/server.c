@@ -109,10 +109,13 @@ int tswServer_start(tswServer *serv)
 	}
 
 	for (i = 0; i < serv->worker_num; i++) {
-		if (tswServer_create_worker(serv, i) < 0) {
+		if (tswServer_create_worker(serv, pool, i) < 0) {
+			tswWarn("%s", "tswServer_create_worker error");
 			return TSW_ERR;
 		}
 	}
+
+	tswProcessPool_info(pool);
 
 	if (tswServer_start_proxy(serv) < 0) {
 		tswWarn("%s", "tswServer_start_proxy error");
