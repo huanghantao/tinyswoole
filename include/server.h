@@ -7,8 +7,6 @@
 #define MAX_BUF_SIZE 1024
 
 tswServerG TSwooleG;
-int listen_epollfd;
-int conn_epollfd;
 
 struct _tswServer {
     int serv_sock;
