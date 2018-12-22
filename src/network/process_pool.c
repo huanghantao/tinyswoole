@@ -1,4 +1,5 @@
 #include "../../include/process_pool.h"
+#include "../../include/worker.h"
 
 int tswProcessPool_create(tswProcessPool *pool, int worker_num)
 {
@@ -36,10 +37,8 @@ int tswServer_create_worker(tswServer *serv, tswProcessPool *pool, int worker_id
 
     // worker process
 	close(sockfd[0]);
-	for (;;) {
-		// tswDebug("worker process [%d] is running...", worker_id);
-		sleep(1);
-	}
+	tswWorker_loop(worker_id, sockfd[1]);
+	
 	return TSW_OK;
 }
 

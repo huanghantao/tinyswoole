@@ -23,6 +23,7 @@ struct _tswServer {
     void (*onReactorStart)(int reactor_id);
 
     int worker_num;
+    tswProcessPool *process_pool;
 };
 
 /*

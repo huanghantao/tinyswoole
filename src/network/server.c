@@ -116,6 +116,7 @@ int tswServer_start(tswServer *serv)
 	}
 
 	tswProcessPool_info(pool);
+	serv->process_pool = pool;
 
 	if (tswServer_start_proxy(serv) < 0) {
 		tswWarn("%s", "tswServer_start_proxy error");
@@ -153,6 +154,7 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 {
 	int n;
+	int sockfd;
 	char buffer[MAX_BUF_SIZE];
 	tswReactorEpoll *reactor_epoll_object = reactor->object;
 
@@ -165,7 +167,9 @@ int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 		return TSW_OK;
 	}
 	buffer[n] = 0;
-	TSwooleG.serv->onReceive(TSwooleG.serv, tswev->fd, buffer);
+
+	sockfd = TSwooleG.serv->process_pool->workers[0].sockfd;
+	write(sockfd, buffer, n);
 
 	return TSW_OK;
 }

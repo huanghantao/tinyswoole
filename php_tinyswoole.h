@@ -65,6 +65,7 @@ ZEND_TSRMLS_CACHE_EXTERN()
 #include "include/socket.h"
 #include "include/tinyswoole.h"
 #include "include/tswoole_config.h"
+#include "include/worker.h"
 
 
 #define tinyswoole_php_fatal_error(level, fmt_str, ...)		php_error_docref(NULL TSRMLS_CC, level, fmt_str, ##__VA_ARGS__)
