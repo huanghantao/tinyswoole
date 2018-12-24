@@ -52,16 +52,6 @@ typedef struct _tswProcessPool tswProcessPool;
 #define TSW_IPC_MAX_SIZE 8192
 #define TSW_BUFFER_SIZE (TSW_IPC_MAX_SIZE - sizeof(tswDataHead))
 
-struct _tswDataHead {
-	uint16_t len;	// data len
-	int16_t from_id; // reactor id
-};
-
-struct _tswEventData {
-	tswDataHead info;
-	char data[TSW_BUFFER_SIZE];
-};
-
 struct _tswServerG {
 	tswServer *serv;
 };
@@ -84,6 +74,17 @@ typedef struct _tswEvent {
 	int (*event_handler)(tswReactor *reactor, tswEvent *tswev); // specific event handler
 } tswEvent;
 
+struct _tswDataHead {
+	uint16_t len;	// data len
+	uint16_t from_id; // reactor id
+	uint16_t fd; // connfd
+};
+
+struct _tswEventData {
+	tswDataHead info;
+	char data[TSW_BUFFER_SIZE];
+};
+
 /*
  * Used to manage handles
  * 
@@ -105,6 +106,8 @@ struct _tswReactor {
 	int (*wait)(tswReactor *reactor); // Waiting for events
 	int (*free)(tswReactor *reactor); // free the reactor manager
 	int (*setHandler)(tswEvent *tswev, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev)); // set event handler
+
+	uint16_t id; // reactor id
 };
 
 int tswReactor_create(tswReactor *reactor, int max_event_num);

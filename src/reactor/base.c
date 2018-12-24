@@ -7,6 +7,7 @@ int tswReactor_create(tswReactor *reactor, int max_event_num)
 		return TSW_ERR;
     }
     reactor->setHandler = tswReactor_setHandler;
+    reactor->id = 0;
     return TSW_OK;
 }
 

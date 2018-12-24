@@ -10,6 +10,7 @@ static int tswReactorThread_loop(tswThreadParam *param)
     tswServer *serv = param->object;
     tswReactor *reactor = &(serv->reactor_threads[pti].reactor);
 
+    reactor->id = pti;
     for (;;) {
         int nfds;
 
@@ -19,7 +20,7 @@ static int tswReactorThread_loop(tswThreadParam *param)
             tswReactorEpoll *reactor_epoll_object = reactor->object;
 
             tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
-	        tswDebug("reactor thread [%d] handler the event", pti);
+	        tswDebug("reactor thread [%d] handler the event", reactor->id);
             if (tswev->event_handler(reactor, tswev) < 0) {
                 tswWarn("%s", "event_handler error");
                 continue;

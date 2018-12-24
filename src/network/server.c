@@ -157,8 +157,9 @@ int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 	int sockfd;
 	char buffer[MAX_BUF_SIZE];
 	tswReactorEpoll *reactor_epoll_object = reactor->object;
+	tswEventData event_data;
 
-	n = recv(tswev->fd, buffer, MAX_BUF_SIZE, 0);
+	n = recv(tswev->fd, event_data.data, TSW_BUFFER_SIZE, 0);
 	if (n == 0) {
 		reactor->del(reactor, tswev->fd);
 		close(tswev->fd);
@@ -166,10 +167,13 @@ int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 		reactor->event_num -= 1;
 		return TSW_OK;
 	}
-	buffer[n] = 0;
+
+	event_data.info.len = n;
+	event_data.info.from_id = reactor->id;
+	event_data.info.fd = tswev->fd;
 
 	sockfd = TSwooleG.serv->process_pool->workers[0].sockfd;
-	write(sockfd, buffer, n);
+	write(sockfd, (void *)&event_data, sizeof(event_data.info) + event_data.info.len);
 
 	return TSW_OK;
 }

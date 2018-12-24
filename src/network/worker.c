@@ -5,12 +5,16 @@
 static int tswWorker_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
 {
     int n;
-    char buffer[MAX_BUF_SIZE];
+	tswEventData event_data;
+	int connfd;
 
-    n = read(tswev->fd, buffer, MAX_BUF_SIZE);
-    if (n > 0) {
-        tswDebug("worker process receive: %s", buffer);
+    n = read(tswev->fd, &event_data, sizeof(event_data));
+    if (event_data.info.len > 0) {
+		connfd = event_data.info.fd;
+		TSwooleG.serv->onReceive(TSwooleG.serv, connfd, event_data.data);
     }
+
+	return TSW_OK;
 }
 
 int tswWorker_loop(int worker_id, int sockfd)
