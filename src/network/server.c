@@ -223,6 +223,12 @@ void tswServer_reactor_onStart(int reactor_id)
 	tswDebug("reactor thread [%d] started successfully", reactor_id);
 }
 
+/*
+ * worker process: 
+ * 
+ * @fd: session_id
+ * @data: data from the send() method of php user space
+*/
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length)
 {
 	return send(fd, data, length, 0);

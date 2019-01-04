@@ -6,8 +6,8 @@ static int tswWorker_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
 {
     int n;
 	tswEventData event_data;
-	int session_id;
 
+	// tswev->fd represents the fd of the pipe
     n = read(tswev->fd, &event_data, sizeof(event_data));
     if (event_data.info.len > 0) {
 		TSwooleG.serv->onReceive(TSwooleG.serv, &event_data);

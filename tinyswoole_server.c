@@ -190,6 +190,8 @@ void php_tswoole_onConnect(int fd)
 
 /**
  * @fd: session_id
+ * 
+ * Event_data saves the data sent from the client
  */
 void php_tswoole_onReceive(tswServer *serv, tswEventData *event_data)
 {
