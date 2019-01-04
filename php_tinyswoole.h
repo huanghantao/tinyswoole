@@ -91,7 +91,7 @@ char *tsw_zend_println_zval_type(zval *v);
 void php_tswoole_register_callback(tswServer *serv);
 void php_tswoole_onStart(tswServer *serv);
 void php_tswoole_onConnect(int fd);
-void php_tswoole_onReceive(tswServer *serv, int fd, char *data);
+void php_tswoole_onReceive(tswServer *serv, tswEventData *event_data);
 
 PHP_METHOD(tinyswoole_server, __construct);
 PHP_METHOD(tinyswoole_server, set);

@@ -27,6 +27,25 @@ tswServer *tswServer_new(void)
 	serv->onClose = NULL;
 	serv->onReactorStart = NULL;
 
+	serv->connection_list = (tswConnection *)malloc(sizeof(tswConnection) * TSW_CONNECTION_LIST_SIZE);
+	if (serv->connection_list == NULL) {
+		tswWarn("%s", "malloc error");
+		return NULL;
+	}
+
+	serv->session_list = (tswSession *)malloc(sizeof(tswSession) * TSW_SESSION_LIST_SIZE);
+	if (serv->session_list == NULL) {
+		tswWarn("%s", "malloc error");
+		return NULL;
+	}
+
+	serv->status = (tswServerStatus *)malloc(sizeof(tswServerStatus));
+	if (serv->status == NULL) {
+		tswWarn("%s", "malloc error");
+		return NULL;
+	}
+	serv->status->accept_count = 0;
+
 	return serv;
 }
 
@@ -73,14 +92,13 @@ static int tswServer_start_proxy(tswServer *serv)
 
 		nfds = main_reactor->wait(main_reactor);
 		for (int i = 0; i < nfds; i++) {
-			int connfd;
 			tswReactorThread *tsw_reactor_thread;
 		    tswReactorEpoll *reactor_epoll_object = main_reactor->object;
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
-			tsw_reactor_thread = &(serv->reactor_threads[i % serv->reactor_num]);
+			// tsw_reactor_thread = &(serv->reactor_threads[i % serv->reactor_num]);
 			tswDebug("%s", "master thread handler the event");
-			if (tswev->event_handler(&(tsw_reactor_thread->reactor), tswev) < 0) {
+			if (tswev->event_handler(main_reactor, tswev) < 0) {
 				tswWarn("%s", "event_handler error");
 				continue;
 			}
@@ -134,6 +152,8 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 	int connfd;
 	socklen_t len;
 	struct sockaddr_in cliaddr;
+	tswServer *serv = reactor->ptr;
+	tswReactor *sub_reactor;
 
 	len = sizeof(cliaddr);
 	connfd = accept(tswev->fd, (struct sockaddr *)&cliaddr, &len);
@@ -141,9 +161,24 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 		tswWarn("%s", "accept error");
 		return TSW_ERR;
 	}
-	TSwooleG.serv->onConnect(connfd);
 
-	if (reactor->add(reactor, connfd, TSW_EVENT_READ, tswServer_reactor_onReceive) < 0) {
+	serv->status->accept_count++;
+
+	sub_reactor = &(serv->reactor_threads[connfd % serv->reactor_num].reactor);
+
+	serv->connection_list[connfd].connfd = connfd;
+	serv->connection_list[connfd].session_id = serv->status->accept_count;
+	serv->connection_list[connfd].from_reactor_id = sub_reactor->id;
+	serv->connection_list[connfd].serv_sock = serv->serv_sock;
+
+	serv->session_list[serv->status->accept_count].session_id = serv->status->accept_count;
+	serv->session_list[serv->status->accept_count].connfd = connfd;
+	serv->session_list[serv->status->accept_count].reactor_id = sub_reactor->id;
+	serv->session_list[serv->status->accept_count].serv_sock = serv->serv_sock;
+
+	serv->onConnect(serv->status->accept_count);
+	
+	if (sub_reactor->add(sub_reactor, connfd, TSW_EVENT_READ, tswServer_reactor_onReceive) < 0) {
 		tswWarn("%s", "reactor add error");
 		return TSW_ERR;
 	}
@@ -170,7 +205,7 @@ int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 
 	event_data.info.len = n;
 	event_data.info.from_id = reactor->id;
-	event_data.info.fd = tswev->fd;
+	event_data.info.fd = TSwooleG.serv->connection_list[tswev->fd].session_id;
 
 	sockfd = TSwooleG.serv->process_pool->workers[0].sockfd;
 	write(sockfd, (void *)&event_data, sizeof(event_data.info) + event_data.info.len);

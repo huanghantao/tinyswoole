@@ -1,4 +1,5 @@
 #include "../../include/tinyswoole.h"
+#include "../../include/server.h"
 
 int tswReactor_create(tswReactor *reactor, int max_event_num)
 {
@@ -6,6 +7,7 @@ int tswReactor_create(tswReactor *reactor, int max_event_num)
         tswWarn("tswReactorEpoll_create error.");
 		return TSW_ERR;
     }
+    reactor->ptr = TSwooleG.serv;
     reactor->setHandler = tswReactor_setHandler;
     reactor->id = 0;
     return TSW_OK;

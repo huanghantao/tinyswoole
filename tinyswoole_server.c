@@ -188,7 +188,10 @@ void php_tswoole_onConnect(int fd)
 	call_user_function_ex(EG(function_table), NULL, php_tsw_server_callbacks[TSW_SERVER_CB_onConnect], &retval, 1, args, 0, NULL);
 }
 
-void php_tswoole_onReceive(tswServer *serv, int fd, char *data)
+/**
+ * @fd: session_id
+ */
+void php_tswoole_onReceive(tswServer *serv, tswEventData *event_data)
 {
 	zval *zfd;
 	zval *zdata;
@@ -196,9 +199,9 @@ void php_tswoole_onReceive(tswServer *serv, int fd, char *data)
 	zval args[3];
 
 	TSW_MAKE_STD_ZVAL(zfd);
-	ZVAL_LONG(zfd, fd);
+	ZVAL_LONG(zfd, event_data->info.fd);
 	TSW_MAKE_STD_ZVAL(zdata);
-	ZVAL_STRINGL(zdata, data, sizeof(data) - 1);
+	ZVAL_STRINGL(zdata, event_data->data, event_data->info.len);
 
 	args[0] = *server_object;
 	args[1] = *zfd;

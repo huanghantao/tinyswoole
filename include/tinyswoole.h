@@ -48,6 +48,9 @@ typedef struct _tswReactorEpoll tswReactorEpoll;
 typedef struct _tswReactorThread tswReactorThread;
 typedef struct _tswWorker tswWorker;
 typedef struct _tswProcessPool tswProcessPool;
+typedef struct _tswServerStatus tswServerStatus;
+typedef struct _tswConnection tswConnection;
+typedef struct _tswSession tswSession;
 
 #define TSW_IPC_MAX_SIZE 8192
 #define TSW_BUFFER_SIZE (TSW_IPC_MAX_SIZE - sizeof(tswDataHead))
@@ -77,7 +80,7 @@ typedef struct _tswEvent {
 struct _tswDataHead {
 	uint16_t len;	// data len
 	uint16_t from_id; // reactor id
-	uint16_t fd; // connfd
+	uint16_t fd; // session id
 };
 
 struct _tswEventData {
@@ -94,11 +97,13 @@ struct _tswEventData {
 */
 struct _tswReactor {
 	void *object; // event object, for example, tswReactorEpoll
+	void *ptr;  // reserve(to server)
 	int event_num;
 	int max_event_num;
 
 	tswEvent tswev[MAXEVENTS + 1];
 
+	// fd is handle instead of session_id
 	int (*add)(tswReactor *reactor, int fd, int tsw_event_type, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev));
 	int (*set)(tswReactor *reactor, int fd, int event_type);
 	int (*del)(tswReactor *reactor, int fd);
@@ -114,6 +119,23 @@ int tswReactor_create(tswReactor *reactor, int max_event_num);
 int tswReactorEpoll_create(tswReactor *reactor, int max_event_num);
 int tswReactor_setHandler(tswEvent *tswev, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev));
 
+struct _tswConnection {
+	int connfd;
+	uint32_t session_id;
+	uint32_t from_reactor_id;
+	int serv_sock;
+};
+
+struct _tswSession {
+    uint32_t session_id;
+    int connfd;
+    uint32_t reactor_id;
+	int serv_sock;
+};
+
+struct _tswServerStatus {
+    uint32_t accept_count;
+};
 
 
 #endif /* TINYSWOOLE_H_ */

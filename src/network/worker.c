@@ -6,12 +6,11 @@ static int tswWorker_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
 {
     int n;
 	tswEventData event_data;
-	int connfd;
+	int session_id;
 
     n = read(tswev->fd, &event_data, sizeof(event_data));
     if (event_data.info.len > 0) {
-		connfd = event_data.info.fd;
-		TSwooleG.serv->onReceive(TSwooleG.serv, connfd, event_data.data);
+		TSwooleG.serv->onReceive(TSwooleG.serv, &event_data);
     }
 
 	return TSW_OK;

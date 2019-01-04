@@ -13,7 +13,7 @@ struct _tswServer {
 
     void (*onStart)(tswServer *serv);
     void (*onConnect)(int fd);
-    void (*onReceive)(tswServer *serv, int fd, char *data);
+    void (*onReceive)(tswServer *serv, tswEventData *event_data);
     void (*onClose)(void);
 
     void (*onMasterStart)(void);
@@ -24,6 +24,10 @@ struct _tswServer {
 
     int worker_num;
     tswProcessPool *process_pool;
+
+    tswConnection *connection_list;
+    tswSession *session_list;
+    tswServerStatus *status;
 };
 
 /*
