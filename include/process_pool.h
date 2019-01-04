@@ -9,7 +9,8 @@
 struct _tswWorker {
 	pid_t pid;
 	int worker_id;
-	int sockfd;
+	int read_pipefd;
+	int write_pipefd;
 };
 
 struct _tswProcessPool {

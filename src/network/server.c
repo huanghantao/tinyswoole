@@ -12,6 +12,7 @@
 #include "../../include/server.h"
 #include "../../include/epoll.h"
 #include "../../include/process_pool.h"
+#include "../../include/worker.h"
 
 tswServer *tswServer_new(void)
 {
@@ -189,10 +190,12 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 {
 	int n;
-	int sockfd;
+	int write_pipefd;
+	int read_pipefd;
 	char buffer[MAX_BUF_SIZE];
 	tswReactorEpoll *reactor_epoll_object = reactor->object;
 	tswEventData event_data;
+	int worker_id;
 
 	n = recv(tswev->fd, event_data.data, TSW_BUFFER_SIZE, 0);
 	if (n == 0) {
@@ -206,9 +209,16 @@ int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 	event_data.info.len = n;
 	event_data.info.from_id = reactor->id;
 	event_data.info.fd = TSwooleG.serv->connection_list[tswev->fd].session_id;
+	worker_id = tswev->fd % TSwooleG.serv->process_pool->workers_num;
 
-	sockfd = TSwooleG.serv->process_pool->workers[0].sockfd;
-	write(sockfd, (void *)&event_data, sizeof(event_data.info) + event_data.info.len);
+	write_pipefd = TSwooleG.serv->process_pool->workers[worker_id].write_pipefd;
+	read_pipefd = TSwooleG.serv->process_pool->workers[worker_id].read_pipefd;
+	write(write_pipefd, (void *)&event_data, sizeof(event_data.info) + event_data.info.len);
+
+	if (reactor->add(reactor, read_pipefd, TSW_EVENT_READ, tswReactor_onPipeReceive) < 0) {
+		tswWarn("%s", "reactor add error");
+		return TSW_ERR;
+	}
 
 	return TSW_OK;
 }
@@ -223,6 +233,24 @@ void tswServer_reactor_onStart(int reactor_id)
 	tswDebug("reactor thread [%d] started successfully", reactor_id);
 }
 
+int tswReactor_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
+{
+	int n;
+	int session_id;
+	int connfd;
+	tswEventData event_data;
+	tswSession *session;
+
+	// tswev->fd represents the fd of the pipe
+    n = read(tswev->fd, &event_data, sizeof(event_data));
+	session_id = event_data.info.fd;
+	session = &(TSwooleG.serv->session_list[session_id]);
+
+	send(session->connfd, event_data.data, event_data.info.len, 0);
+    
+	return TSW_OK;
+}
+
 /*
  * worker process: 
  * 
@@ -231,5 +259,13 @@ void tswServer_reactor_onStart(int reactor_id)
 */
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length)
 {
-	return send(fd, data, length, 0);
+	tswEventData event_data;
+
+	event_data.info.len = length;
+	event_data.info.from_id = TSwooleWG.id;
+	event_data.info.fd = fd;
+	memcpy(event_data.data, data, length);
+
+	tswWorker_sendToReactor(&event_data);
+	return TSW_OK;
 }

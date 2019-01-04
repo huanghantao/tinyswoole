@@ -16,7 +16,13 @@ static int tswWorker_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
 	return TSW_OK;
 }
 
-int tswWorker_loop(int worker_id, int sockfd)
+int tswWorker_sendToReactor(tswEventData *event_data)
+{
+	write(TSwooleWG.write_pipefd, event_data, sizeof(event_data->info) + event_data->info.len);
+	return TSW_OK;
+}
+
+int tswWorker_loop()
 {
     tswReactor *main_reactor;
 
@@ -31,7 +37,7 @@ int tswWorker_loop(int worker_id, int sockfd)
 		return TSW_ERR;
 	}
 
-    if (main_reactor->add(main_reactor, sockfd, TSW_EVENT_READ, tswWorker_onPipeReceive) < 0) {
+    if (main_reactor->add(main_reactor, TSwooleWG.read_pipefd, TSW_EVENT_READ, tswWorker_onPipeReceive) < 0) {
 		tswWarn("%s", "reactor add error");
 		return TSW_ERR;
 	}
@@ -45,6 +51,7 @@ int tswWorker_loop(int worker_id, int sockfd)
 		    tswReactorEpoll *reactor_epoll_object = main_reactor->object;
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
+			tswDebug("worker process [%d] handle the data", TSwooleWG.id);
 			if (tswev->event_handler(main_reactor, tswev) < 0) {
 				tswWarn("%s", "event_handler error");
 				continue;

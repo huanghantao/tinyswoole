@@ -7,6 +7,7 @@
 #define MAX_BUF_SIZE 1024
 
 tswServerG TSwooleG;
+tswWorkerG TSwooleWG;
 
 struct _tswServer {
     int serv_sock;
@@ -48,6 +49,7 @@ int tswReactorThread_create(tswServer *serv);
 int tswReactorThread_start(tswServer *serv);
 void tswServer_reactor_onStart(int reactor_id);
 int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev);
+int tswReactor_onPipeReceive(tswReactor *reactor, tswEvent *tswev);
 
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length);
 

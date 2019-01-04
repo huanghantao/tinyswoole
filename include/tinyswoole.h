@@ -51,6 +51,7 @@ typedef struct _tswProcessPool tswProcessPool;
 typedef struct _tswServerStatus tswServerStatus;
 typedef struct _tswConnection tswConnection;
 typedef struct _tswSession tswSession;
+typedef struct _tswWorkerG tswWorkerG;
 
 #define TSW_IPC_MAX_SIZE 8192
 #define TSW_BUFFER_SIZE (TSW_IPC_MAX_SIZE - sizeof(tswDataHead))
@@ -135,6 +136,15 @@ struct _tswSession {
 
 struct _tswServerStatus {
     uint32_t accept_count;
+};
+
+/*
+ * in every worker process
+*/
+struct _tswWorkerG {
+    uint32_t id; // worker_id
+    int read_pipefd;
+	int write_pipefd;
 };
 
 

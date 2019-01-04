@@ -84,6 +84,7 @@ zval *server_object;
 extern zend_class_entry *tinyswoole_server_ce_ptr;
 
 extern tswServerG TSwooleG;
+extern tswWorkerG TSwooleWG;
 
 zval *tsw_zend_read_property(zend_class_entry *class_ptr, zval *obj, const char *s, int len, int silent);
 char *tsw_zend_println_zval_type(zval *v);

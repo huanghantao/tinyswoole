@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "tinyswoole.h"
 
-int tswWorker_loop(int worker_id, int sockfd);
+int tswWorker_sendToReactor(tswEventData *event_data);
+int tswWorker_loop();
 
 #endif /* WORKER_H_ */

@@ -1,5 +1,6 @@
 #include "../../include/process_pool.h"
 #include "../../include/worker.h"
+#include "../../include/server.h"
 
 int tswProcessPool_create(tswProcessPool *pool, int worker_num)
 {
@@ -16,28 +17,42 @@ int tswProcessPool_create(tswProcessPool *pool, int worker_num)
 int tswServer_create_worker(tswServer *serv, tswProcessPool *pool, int worker_id)
 {
 	pid_t pid;
-	int sockfd[2];
+	int pipefd1[2];
+    int pipefd2[2];
     tswWorker *worker;
 
-	if (socketpair(AF_LOCAL, SOCK_STREAM, 0, sockfd) < 0) {
-		tswWarn("%s", "socketpair error");
+	if (pipe(pipefd1) < 0) {
+		tswWarn("%s", "pipe error");
+		return TSW_ERR;
+	}
+    if (pipe(pipefd2) < 0) {
+		tswWarn("%s", "pipe error");
 		return TSW_ERR;
 	}
 
 	pid = fork();
 	if (pid > 0) { // master process
         worker = pool->workers + worker_id;
-		close(sockfd[1]);
         worker->pid = pid;
-        worker->worker_id = worker_id;
-        worker->sockfd = sockfd[0];
         pool->workers_num++;
+        worker->worker_id = worker_id;
+
+		close(pipefd1[0]);
+        worker->write_pipefd = pipefd1[1];
+        close(pipefd2[1]);
+        worker->read_pipefd = pipefd2[0];
 		return TSW_OK;
 	}
 
     // worker process
-	close(sockfd[0]);
-	tswWorker_loop(worker_id, sockfd[1]);
+	close(pipefd1[1]);
+	close(pipefd2[0]);
+    // pipefd1[0] is used to read the data sent by the reactor thread
+    // pipefd2[1] is used to send the data to the reactor thread
+    TSwooleWG.read_pipefd = pipefd1[0];
+    TSwooleWG.write_pipefd = pipefd2[1];
+    TSwooleWG.id = worker_id;
+	tswWorker_loop(worker_id);
 	
 	return TSW_OK;
 }
