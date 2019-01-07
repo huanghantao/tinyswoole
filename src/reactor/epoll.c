@@ -23,10 +23,16 @@ static int setnonblocking(int fd)
 static int tswReactorEpoll_add(tswReactor *reactor, int fd, int tsw_event_type, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev))
 {
     if (tsw_event_type == TSW_EVENT_READ) {
-        epoll_add(reactor, fd, EPOLLIN | EPOLLET, tswReactor_handler);
+        if (epoll_add(reactor, fd, EPOLLIN | EPOLLET, tswReactor_handler) < 0) {
+            tswWarn("epoll_add error: %s", strerror(errno));
+            return TSW_ERR;
+        }
     }
     if (tsw_event_type == TSW_EVENT_WRITE) {
-        epoll_add(reactor, fd, EPOLLOUT | EPOLLET, tswReactor_handler);
+        if (epoll_add(reactor, fd, EPOLLOUT | EPOLLET, tswReactor_handler) < 0) {
+            tswWarn("epoll_add error: %s", strerror(errno));
+            return TSW_ERR;
+        }
     }
     reactor->event_num++;
 

@@ -251,6 +251,10 @@ int tswReactor_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
 	session = &(TSwooleG.serv->session_list[session_id]);
 
 	send(session->connfd, event_data.data, event_data.info.len, 0);
+	if (reactor->del(reactor, tswev->fd) < 0) {
+		tswWarn("%s", "reactor del error");
+		return TSW_ERR;
+	}
     
 	return TSW_OK;
 }
