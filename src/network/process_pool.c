@@ -52,7 +52,10 @@ int tswServer_create_worker(tswServer *serv, tswProcessPool *pool, int worker_id
     TSwooleWG.read_pipefd = pipefd1[0];
     TSwooleWG.write_pipefd = pipefd2[1];
     TSwooleWG.id = worker_id;
-	tswWorker_loop(worker_id);
+	if (tswWorker_loop(worker_id) < 0) {
+        tswWarn("%s", "tswWorker_loop error");
+		return TSW_ERR;
+    }
 	
 	return TSW_OK;
 }

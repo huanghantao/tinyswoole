@@ -46,6 +46,11 @@ int tswWorker_loop()
 		int nfds;
 
 		nfds = main_reactor->wait(main_reactor);
+		if (nfds < 0) {
+			tswWarn("%s", "master thread epoll wait error");
+			return TSW_ERR;
+		}
+		
 		for (int i = 0; i < nfds; i++) {
 			int connfd;
 		    tswReactorEpoll *reactor_epoll_object = main_reactor->object;

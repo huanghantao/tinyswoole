@@ -15,6 +15,11 @@ static int tswReactorThread_loop(tswThreadParam *param)
         int nfds;
 
         nfds = reactor->wait(reactor);
+        if (nfds < 0) {
+			tswWarn("%s", "reactor thread epoll wait error");
+			return TSW_ERR;
+		}
+
         for (int i = 0; i < nfds; i++) {
             int connfd;
             tswReactorEpoll *reactor_epoll_object = reactor->object;

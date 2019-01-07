@@ -92,12 +92,16 @@ static int tswServer_start_proxy(tswServer *serv)
 		int nfds;
 
 		nfds = main_reactor->wait(main_reactor);
+		if (nfds < 0) {
+			tswWarn("%s", "master thread epoll wait error");
+			return TSW_ERR;
+		}
+		
 		for (int i = 0; i < nfds; i++) {
 			tswReactorThread *tsw_reactor_thread;
 		    tswReactorEpoll *reactor_epoll_object = main_reactor->object;
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
-			// tsw_reactor_thread = &(serv->reactor_threads[i % serv->reactor_num]);
 			tswDebug("%s", "master thread handler the event");
 			if (tswev->event_handler(main_reactor, tswev) < 0) {
 				tswWarn("%s", "event_handler error");
