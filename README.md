@@ -20,7 +20,7 @@ $serv->set([
 ]);
 ```
 
-## Increase the server start event callback
+## Add the server start event callback
 
 ```php
 <?php
@@ -36,7 +36,7 @@ $serv->start();
 
 ```
 
-## Increase the server connect event callback
+## Add the server connect event callback
 
 ```php
 <?php
@@ -52,7 +52,7 @@ $serv->start();
 
 ```
 
-## Increase the server receive event callback
+## Add the server receive event callback
 
 ```php
 <?php
