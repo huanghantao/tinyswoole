@@ -14,6 +14,8 @@ if test "$PHP_TINYSWOOLE" != "no"; then
   src/network/process_pool.c \
   src/network/worker.c \
   src/reactor/epoll.c \
-  src/reactor/base.c"
+  src/reactor/base.c \
+  src/pipe/base.c \
+  src/pipe/unix_socket.c"
   PHP_NEW_EXTENSION(tinyswoole, $source_file, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
 fi

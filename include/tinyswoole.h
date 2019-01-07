@@ -53,6 +53,9 @@ typedef struct _tswConnection tswConnection;
 typedef struct _tswSession tswSession;
 typedef struct _tswWorkerG tswWorkerG;
 
+typedef struct _tswPipeBase tswPipeBase;
+typedef struct _tswPipeUnsock tswPipeUnsock;
+
 #define TSW_IPC_MAX_SIZE 8192
 #define TSW_BUFFER_SIZE (TSW_IPC_MAX_SIZE - sizeof(tswDataHead))
 
@@ -146,6 +149,20 @@ struct _tswWorkerG {
     int read_pipefd;
 	int write_pipefd;
 };
+
+struct _tswPipeBase {
+	void *object;
+
+	int (*read)(tswPipeBase *pipe, void *recv, int length);
+	int (*write)(tswPipeBase *pipe, void *send, int length);
+};
+
+struct _tswPipeUnsock {
+    int socks[2]; // socks[0]: worker, socks[1]: master
+};
+
+int tswPipeBase_create(tswPipeBase *pipe);
+int tswPipeUnsock_create(tswPipeBase *pipe);
 
 
 #endif /* TINYSWOOLE_H_ */
