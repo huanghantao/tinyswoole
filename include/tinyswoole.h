@@ -21,12 +21,6 @@
 #define TSW_OK 0
 #define TSW_ERR -1
 
-enum tswFd_type {
-	TSW_FD_LISTEN = 0, // server socket
-	TSW_FD_WRITE = 1,  // fd can write
-	TSW_FD_READ = 2,   // fd can read
-};
-
 // Read and write events of interest to the file descriptor
 enum tswEvent_type {
 	TSW_EVENT_READ = 0,
