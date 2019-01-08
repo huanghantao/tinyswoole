@@ -12,7 +12,7 @@ struct _tswWorker {
 };
 
 struct _tswProcessPool {
-	int workers_num;
+	int worker_num;
 	tswPipe *pipes;
 	tswWorker *workers;
 };

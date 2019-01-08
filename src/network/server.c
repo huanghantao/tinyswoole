@@ -45,7 +45,11 @@ tswServer *tswServer_new(void)
 */
 static int tswServer_start_proxy(tswServer *serv)
 {
-    tswReactor *main_reactor = malloc(sizeof(tswReactor));
+    tswReactor *main_reactor;
+
+    serv->reactor_pipe_num = serv->worker_num / serv->reactor_num;
+
+    main_reactor = malloc(sizeof(tswReactor));
     if (main_reactor == NULL) {
         tswWarn("%s", "malloc error");
         return TSW_ERR;
@@ -216,7 +220,7 @@ int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
     event_data.info.len = n;
     event_data.info.from_id = reactor->id;
     event_data.info.fd = TSwooleG.serv->connection_list[tswev->fd].session_id;
-    worker_id = tswev->fd % TSwooleG.serv->process_pool->workers_num;
+    worker_id = tswev->fd % TSwooleG.serv->process_pool->worker_num;
 
     pipe_master = TSwooleG.serv->process_pool->workers[worker_id].pipe_master;
     write(pipe_master, (void *)&event_data, sizeof(event_data.info) + event_data.info.len);

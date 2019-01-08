@@ -17,7 +17,7 @@ int tswProcessPool_create(tswProcessPool *pool, int worker_num)
         tswWarn("%s", "malloc error");
 		return TSW_ERR;
     }
-    pool->workers_num = worker_num;
+    pool->worker_num = worker_num;
 
     return TSW_OK;
 }
@@ -50,7 +50,7 @@ int tswServer_create_worker(tswServer *serv, tswProcessPool *pool, int worker_id
 void tswProcessPool_info(const tswProcessPool *pool)
 {
     tswWorker *worker = pool->workers;
-    for (int i = 0; i < pool->workers_num; i++) {
+    for (int i = 0; i < pool->worker_num; i++) {
         tswDebug("worker [%d] pid is %d", worker[i].worker_id, worker[i].pid);
     }
 }

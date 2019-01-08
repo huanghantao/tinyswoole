@@ -29,6 +29,7 @@ struct _tswServer {
     tswConnection *connection_list;
     tswSession *session_list;
     tswServerStatus *status;
+    int reactor_pipe_num;
 };
 
 /*

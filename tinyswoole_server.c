@@ -67,14 +67,19 @@ PHP_METHOD(tinyswoole_server, set)
         convert_to_long(v);
         serv->reactor_num = (uint16_t)Z_LVAL_P(v);
     } else {
-		serv->reactor_num = 2;
+		serv->reactor_num = 4;
 	}
 
 	if (php_tinyswoole_array_get_value(vht, "worker_num", v)) {
         convert_to_long(v);
         serv->worker_num = (uint16_t)Z_LVAL_P(v);
     } else {
-		serv->worker_num = 2;
+		serv->worker_num = 4;
+	}
+
+	if (serv->worker_num < serv->reactor_num) {
+		serv->worker_num = 4;
+		serv->reactor_num = 4;
 	}
 }
 
