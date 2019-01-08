@@ -1,10 +1,8 @@
 #include "tswoole_config.h"
-#include "epoll.h"
 #include "process_pool.h"
 #include "worker.h"
 #include "log.h"
 #include "server.h"
-
 
 tswServer *tswServer_new(void)
 {

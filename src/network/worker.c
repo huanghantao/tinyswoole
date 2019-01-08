@@ -1,5 +1,4 @@
 #include "worker.h"
-#include "epoll.h"
 #include "server.h"
 #include "log.h"
 
