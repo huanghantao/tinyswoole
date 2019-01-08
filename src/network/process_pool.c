@@ -9,7 +9,12 @@ int tswProcessPool_create(tswProcessPool *pool, int worker_num)
         tswWarn("%s", "malloc error");
 		return TSW_ERR;
     }
-    pool->workers_num = 0;
+    pool->pipes = malloc(sizeof(tswPipe) * worker_num);
+    if (pool->pipes == NULL) {
+        tswWarn("%s", "malloc error");
+		return TSW_ERR;
+    }
+    pool->workers_num = worker_num;
 
     return TSW_OK;
 }
@@ -17,42 +22,21 @@ int tswProcessPool_create(tswProcessPool *pool, int worker_num)
 int tswServer_create_worker(tswServer *serv, tswProcessPool *pool, int worker_id)
 {
 	pid_t pid;
-	int pipefd1[2];
-    int pipefd2[2];
     tswWorker *worker;
 
-	if (pipe(pipefd1) < 0) {
-		tswWarn("%s", "pipe error");
-		return TSW_ERR;
-	}
-    if (pipe(pipefd2) < 0) {
-		tswWarn("%s", "pipe error");
-		return TSW_ERR;
-	}
-
+    worker = pool->workers + worker_id;
 	pid = fork();
 	if (pid > 0) { // master process
-        worker = pool->workers + worker_id;
         worker->pid = pid;
-        pool->workers_num++;
         worker->worker_id = worker_id;
-
-		close(pipefd1[0]);
-        worker->write_pipefd = pipefd1[1];
-        close(pipefd2[1]);
-        worker->read_pipefd = pipefd2[0];
 		return TSW_OK;
 	}
 
     // worker process
-	close(pipefd1[1]);
-	close(pipefd2[0]);
-    // pipefd1[0] is used to read the data sent by the reactor thread
-    // pipefd2[1] is used to send the data to the reactor thread
-    TSwooleWG.read_pipefd = pipefd1[0];
-    TSwooleWG.write_pipefd = pipefd2[1];
+    TSwooleWG.pipe_master = worker->pipe_master;
+    TSwooleWG.pipe_worker = worker->pipe_worker;
     TSwooleWG.id = worker_id;
-	if (tswWorker_loop(worker_id) < 0) {
+	if (tswWorker_loop() < 0) {
         tswWarn("%s", "tswWorker_loop error");
 		return TSW_ERR;
     }

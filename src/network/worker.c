@@ -7,7 +7,7 @@ static int tswWorker_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
     int n;
 	tswEventData event_data;
 
-	// tswev->fd represents the fd of the pipe
+	// tswev->fd represents the pipe_worker
     n = read(tswev->fd, &event_data, sizeof(event_data));
     if (event_data.info.len > 0) {
 		TSwooleG.serv->onReceive(TSwooleG.serv, &event_data);
@@ -18,7 +18,7 @@ static int tswWorker_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
 
 int tswWorker_sendToReactor(tswEventData *event_data)
 {
-	write(TSwooleWG.write_pipefd, event_data, sizeof(event_data->info) + event_data->info.len);
+	write(TSwooleWG.pipe_worker, event_data, sizeof(event_data->info) + event_data->info.len);
 	return TSW_OK;
 }
 
@@ -37,7 +37,7 @@ int tswWorker_loop()
 		return TSW_ERR;
 	}
 
-    if (main_reactor->add(main_reactor, TSwooleWG.read_pipefd, TSW_EVENT_READ, tswWorker_onPipeReceive) < 0) {
+    if (main_reactor->add(main_reactor, TSwooleWG.pipe_worker, TSW_EVENT_READ, tswWorker_onPipeReceive) < 0) {
 		tswWarn("%s", "reactor add error");
 		return TSW_ERR;
 	}

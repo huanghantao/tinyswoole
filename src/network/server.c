@@ -117,8 +117,8 @@ static int tswServer_start_proxy(tswServer *serv)
 
 int tswServer_start(tswServer *serv)
 {
-	int i;
 	tswProcessPool *pool;
+	tswPipe *pipe;
 
 	serv->onMasterStart();
 	pool = (tswProcessPool *)malloc(sizeof(tswProcessPool));
@@ -130,8 +130,22 @@ int tswServer_start(tswServer *serv)
 		tswWarn("%s", "tswProcessPool_create error");
 		return TSW_ERR;
 	}
+	
+	for (int i = 0; i < serv->worker_num; i++) {
+		tswPipeUnsock *object;
 
-	for (i = 0; i < serv->worker_num; i++) {
+		pipe = &pool->pipes[i];
+
+		if (tswPipeUnsock_create(pipe) < 0) {
+			tswWarn("%s", "tswPipeUnsock_create error");
+			return TSW_ERR;
+		}
+		pool->workers[i].pipe_master = pipe->getFd(pipe, TSW_PIPE_MASTER);
+		pool->workers[i].pipe_worker = pipe->getFd(pipe, TSW_PIPE_WORKER);
+		pool->workers[i].pipe_object = pipe;
+	}
+
+	for (int i = 0; i < serv->worker_num; i++) {
 		if (tswServer_create_worker(serv, pool, i) < 0) {
 			tswWarn("%s", "tswServer_create_worker error");
 			return TSW_ERR;
@@ -194,8 +208,7 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 {
 	int n;
-	int write_pipefd;
-	int read_pipefd;
+	int pipe_master;
 	char buffer[MAX_BUF_SIZE];
 	tswReactorEpoll *reactor_epoll_object = reactor->object;
 	tswEventData event_data;
@@ -215,11 +228,10 @@ int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
 	event_data.info.fd = TSwooleG.serv->connection_list[tswev->fd].session_id;
 	worker_id = tswev->fd % TSwooleG.serv->process_pool->workers_num;
 
-	write_pipefd = TSwooleG.serv->process_pool->workers[worker_id].write_pipefd;
-	read_pipefd = TSwooleG.serv->process_pool->workers[worker_id].read_pipefd;
-	write(write_pipefd, (void *)&event_data, sizeof(event_data.info) + event_data.info.len);
+	pipe_master = TSwooleG.serv->process_pool->workers[worker_id].pipe_master;
+	write(pipe_master, (void *)&event_data, sizeof(event_data.info) + event_data.info.len);
 
-	if (reactor->add(reactor, read_pipefd, TSW_EVENT_READ, tswReactor_onPipeReceive) < 0) {
+	if (reactor->add(reactor, pipe_master, TSW_EVENT_READ, tswReactor_onPipeReceive) < 0) {
 		tswWarn("%s", "reactor add error");
 		return TSW_ERR;
 	}

@@ -9,12 +9,14 @@
 struct _tswWorker {
 	pid_t pid;
 	int worker_id;
-	int read_pipefd;
-	int write_pipefd;
+	int pipe_master;
+	int pipe_worker;
+	tswPipe *pipe_object;
 };
 
 struct _tswProcessPool {
 	int workers_num;
+	tswPipe *pipes;
 	tswWorker *workers;
 };
 

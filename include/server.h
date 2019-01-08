@@ -53,4 +53,9 @@ int tswReactor_onPipeReceive(tswReactor *reactor, tswEvent *tswev);
 
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length);
 
+enum tswWorkerPipeType {
+    TSW_PIPE_WORKER     = 0,
+    TSW_PIPE_MASTER     = 1,
+};
+
 #endif /* TSW_SERVER_H_ */
