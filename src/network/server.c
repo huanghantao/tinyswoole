@@ -1,18 +1,10 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <sys/types.h>
 #include "tswoole_config.h"
-#include "../../include/server.h"
-#include "../../include/epoll.h"
-#include "../../include/process_pool.h"
-#include "../../include/worker.h"
+#include "epoll.h"
+#include "process_pool.h"
+#include "worker.h"
+#include "log.h"
+#include "server.h"
+
 
 tswServer *tswServer_new(void)
 {

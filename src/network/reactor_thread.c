@@ -1,8 +1,7 @@
-#include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
-#include "../../include/server.h"
-#include "../../include/epoll.h"
+#include "epoll.h"
+#include "log.h"
+#include "server.h"
+#include "tinyswoole.h"
 
 static int tswReactorThread_loop(tswThreadParam *param)
 {

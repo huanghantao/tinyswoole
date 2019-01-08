@@ -1,9 +1,6 @@
 #ifndef PROCESS_POOL_H_
 #define PROCESS_POOL_H_
 
-#include <stdlib.h>
-#include <sys/types.h> 
-#include <unistd.h>
 #include "tinyswoole.h"
 
 struct _tswWorker {

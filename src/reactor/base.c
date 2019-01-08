@@ -1,5 +1,6 @@
-#include "../../include/tinyswoole.h"
-#include "../../include/server.h"
+#include "tinyswoole.h"
+#include "server.h"
+#include "log.h"
 
 int tswReactor_create(tswReactor *reactor, int max_event_num)
 {

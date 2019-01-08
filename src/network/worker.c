@@ -1,6 +1,7 @@
-#include "../../include/worker.h"
-#include "../../include/epoll.h"
-#include "../../include/server.h"
+#include "worker.h"
+#include "epoll.h"
+#include "server.h"
+#include "log.h"
 
 static int tswWorker_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
 {

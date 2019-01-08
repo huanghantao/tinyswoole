@@ -1,7 +1,6 @@
-#include <errno.h>
-#include <string.h>
-#include "../include/tinyswoole.h"
-#include "../include/socket.h"
+#include "tinyswoole.h"
+#include "socket.h"
+#include "log.h"
 
 int tswSocket_create(int type)
 {

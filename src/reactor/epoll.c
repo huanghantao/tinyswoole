@@ -1,9 +1,5 @@
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include "../../include/server.h"
-#include "../../include/epoll.h"
+#include "epoll.h"
+#include "log.h"
 
 static int setnonblocking(int fd)
 {

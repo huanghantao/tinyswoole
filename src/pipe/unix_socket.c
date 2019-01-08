@@ -1,7 +1,6 @@
-#include <stdlib.h>
-#include "../../include/tinyswoole.h"
-#include "../../include/server.h"
-
+#include "tinyswoole.h"
+#include "server.h"
+#include "log.h"
 
 static int tswPipeUnsock_getFd(tswPipe *pipe, int type)
 {

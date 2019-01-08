@@ -1,11 +1,6 @@
-#include <stddef.h>
-#include <time.h>
-#include <errno.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include "../include/log.h"
-#include "../include/tswoole_config.h"
+#include "log.h"
+#include "tinyswoole.h"
+#include "tswoole_config.h"
 
 void tswLog_put(int level, char *cnt)
 {

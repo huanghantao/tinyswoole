@@ -1,6 +1,9 @@
-#include "../../include/process_pool.h"
-#include "../../include/worker.h"
-#include "../../include/server.h"
+#include "process_pool.h"
+#include "worker.h"
+#include "log.h"
+#include "tinyswoole.h"
+#include "server.h"
+
 
 int tswProcessPool_create(tswProcessPool *pool, int worker_num)
 {
