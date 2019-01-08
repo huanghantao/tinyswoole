@@ -24,16 +24,15 @@ int tswPipeUnsock_create(tswPipe *pipe)
     tswPipeUnsock *object;
 
     object = (tswPipeUnsock *)malloc(sizeof(tswPipeUnsock));
-
     if (object == NULL) {
         tswWarn("%s", "malloc error");
-		return TSW_ERR;
+        return TSW_ERR;
     }
 
     if (socketpair(AF_LOCAL, SOCK_STREAM, 0, object->socks) < 0) {
-        tswWarn("socketpair error");
+        tswWarn("%s", "socketpair error");
         free(object);
-		return TSW_ERR;
+        return TSW_ERR;
     }
 
     pipe->object = object;

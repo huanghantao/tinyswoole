@@ -7,7 +7,7 @@ int tswProcessPool_create(tswProcessPool *pool, int worker_num)
     pool->workers = (tswWorker *)malloc(sizeof(tswWorker) * worker_num);
     if (pool->workers == NULL) {
         tswWarn("%s", "malloc error");
-		return TSW_ERR;
+        return TSW_ERR;
     }
     pool->pipes = malloc(sizeof(tswPipe) * worker_num);
     if (pool->pipes == NULL) {
@@ -21,16 +21,16 @@ int tswProcessPool_create(tswProcessPool *pool, int worker_num)
 
 int tswServer_create_worker(tswServer *serv, tswProcessPool *pool, int worker_id)
 {
-	pid_t pid;
+    pid_t pid;
     tswWorker *worker;
 
     worker = pool->workers + worker_id;
-	pid = fork();
-	if (pid > 0) { // master process
+    pid = fork();
+    if (pid > 0) { // master process
         worker->pid = pid;
         worker->worker_id = worker_id;
-		return TSW_OK;
-	}
+        return TSW_OK;
+    }
 
     // worker process
     TSwooleWG.pipe_master = worker->pipe_master;
@@ -38,10 +38,10 @@ int tswServer_create_worker(tswServer *serv, tswProcessPool *pool, int worker_id
     TSwooleWG.id = worker_id;
 	if (tswWorker_loop() < 0) {
         tswWarn("%s", "tswWorker_loop error");
-		return TSW_ERR;
+        return TSW_ERR;
     }
 	
-	return TSW_OK;
+    return TSW_OK;
 }
 
 void tswProcessPool_info(const tswProcessPool *pool)

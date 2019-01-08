@@ -99,7 +99,7 @@ static int tswServer_start_proxy(tswServer *serv)
 		
 		for (int i = 0; i < nfds; i++) {
 			tswReactorThread *tsw_reactor_thread;
-		    tswReactorEpoll *reactor_epoll_object = main_reactor->object;
+			tswReactorEpoll *reactor_epoll_object = main_reactor->object;
 
 			tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
 			tswDebug("%s", "master thread handler the event");
@@ -130,7 +130,7 @@ int tswServer_start(tswServer *serv)
 		tswWarn("%s", "tswProcessPool_create error");
 		return TSW_ERR;
 	}
-	
+
 	for (int i = 0; i < serv->worker_num; i++) {
 		tswPipeUnsock *object;
 
@@ -196,7 +196,7 @@ int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev)
 	serv->session_list[serv->status->accept_count].serv_sock = serv->serv_sock;
 
 	serv->onConnect(serv->status->accept_count);
-	
+
 	if (sub_reactor->add(sub_reactor, connfd, TSW_EVENT_READ, tswServer_reactor_onReceive) < 0) {
 		tswWarn("%s", "reactor add error");
 		return TSW_ERR;
@@ -258,7 +258,7 @@ int tswReactor_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
 	tswSession *session;
 
 	// tswev->fd represents the fd of the pipe
-    n = read(tswev->fd, &event_data, sizeof(event_data));
+	n = read(tswev->fd, &event_data, sizeof(event_data));
 	session_id = event_data.info.fd;
 	session = &(TSwooleG.serv->session_list[session_id]);
 
@@ -267,7 +267,7 @@ int tswReactor_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
 		tswWarn("%s", "reactor del error");
 		return TSW_ERR;
 	}
-    
+
 	return TSW_OK;
 }
 

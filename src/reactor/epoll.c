@@ -77,13 +77,13 @@ static int tswReactorEpoll_wait(tswReactor *reactor)
     events = reactor_epoll_object->events;
     max_event_num = reactor->max_event_num;
 
-	if (events == NULL) {
-		tswWarn("malloc error");
-		return TSW_ERR;
-	}
+    if (events == NULL) {
+        tswWarn("malloc error");
+        return TSW_ERR;
+    }
 
     nfds = epoll_wait(epollfd, events, max_event_num, -1);
-    
+
     return nfds;
 }
 
@@ -102,26 +102,26 @@ int tswReactorEpoll_create(tswReactor *reactor, int max_event_num)
     reactor_epoll_object = malloc(sizeof(tswReactorEpoll));
     if (reactor_epoll_object == NULL) {
         tswWarn("malloc error");
-		return TSW_ERR;
+        return TSW_ERR;
     }
 
     reactor_epoll_object->epfd = epoll_create(512);
     if (reactor_epoll_object->epfd < 0) {
         tswWarn("epoll_create failed. Error: %s[%d]", strerror(errno), errno);
         free(reactor_epoll_object);
-		return TSW_ERR;
+        return TSW_ERR;
     }
     reactor_epoll_object->events = malloc(sizeof(struct epoll_event) * max_event_num);
     if (reactor_epoll_object->events == NULL) {
         tswWarn("malloc error");
         free(reactor_epoll_object);
-		return TSW_ERR;
+        return TSW_ERR;
     }
 
     reactor->object = reactor_epoll_object;
     reactor->event_num = 0;
     reactor->max_event_num = max_event_num;
-    
+
     reactor->add = tswReactorEpoll_add;
     reactor->set = tswReactorEpoll_set;
     reactor->del = tswReactorEpoll_del;
@@ -133,7 +133,7 @@ int tswReactorEpoll_create(tswReactor *reactor, int max_event_num)
 
 int epoll_add(tswReactor *reactor, int fd, int event_type, int (*tswReactor_handler)(tswReactor *reactor, tswEvent *tswev))
 {
-	struct epoll_event e;
+    struct epoll_event e;
     tswEvent *tswev;
     tswReactorEpoll *reactor_epoll_object;
 
@@ -146,15 +146,15 @@ int epoll_add(tswReactor *reactor, int fd, int event_type, int (*tswReactor_hand
     if (reactor->setHandler(tswev, tswReactor_handler) < 0) {
         return TSW_ERR;
     }
-	e.data.ptr = tswev;
+    e.data.ptr = tswev;
     e.events = event_type;
 
-	if (epoll_ctl(reactor_epoll_object->epfd, EPOLL_CTL_ADD, fd, &e) < 0) {
+    if (epoll_ctl(reactor_epoll_object->epfd, EPOLL_CTL_ADD, fd, &e) < 0) {
         tswWarn("epoll_ctl error: %s", strerror(errno));
         return TSW_ERR;
     }
 
-	return TSW_OK;
+    return TSW_OK;
 }
 
 /*
@@ -162,16 +162,16 @@ int epoll_add(tswReactor *reactor, int fd, int event_type, int (*tswReactor_hand
 */
 int epoll_set_output(int epollfd, int fd)
 {
-	struct epoll_event e;
+    struct epoll_event e;
 
-	e.data.fd = fd;
-	e.events = EPOLLOUT | EPOLLET;
-	if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &e) < 0) {
+    e.data.fd = fd;
+    e.events = EPOLLOUT | EPOLLET;
+    if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &e) < 0) {
         tswWarn("epoll_ctl error: %s", strerror(errno));
         return TSW_ERR;
     }
 
-	return TSW_OK;
+    return TSW_OK;
 }
 
 /*

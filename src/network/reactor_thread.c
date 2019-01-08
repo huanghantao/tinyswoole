@@ -16,16 +16,16 @@ static int tswReactorThread_loop(tswThreadParam *param)
 
         nfds = reactor->wait(reactor);
         if (nfds < 0) {
-			tswWarn("%s", "reactor thread epoll wait error");
-			return TSW_ERR;
-		}
+            tswWarn("%s", "reactor thread epoll wait error");
+            return TSW_ERR;
+        }
 
         for (int i = 0; i < nfds; i++) {
             int connfd;
             tswReactorEpoll *reactor_epoll_object = reactor->object;
 
             tswEvent *tswev = (tswEvent *)reactor_epoll_object->events[i].data.ptr;
-	        tswDebug("reactor thread [%d] handler the event", reactor->id);
+            tswDebug("reactor thread [%d] handler the event", reactor->id);
             if (tswev->event_handler(reactor, tswev) < 0) {
                 tswWarn("%s", "event_handler error");
                 continue;
@@ -72,7 +72,7 @@ int tswReactorThread_start(tswServer *serv)
         param->pti = i;
         param->object = serv;
 
-	    serv->onReactorStart(i);
+        serv->onReactorStart(i);
         if (pthread_create(&pidt, NULL, (void * (*)(void *))tswReactorThread_loop, (void *)param) < 0) {
             tswWarn("%s", "pthread_create error");
         }
