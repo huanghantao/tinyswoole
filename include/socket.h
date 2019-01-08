@@ -3,8 +3,7 @@
 
 int tswSocket_create(int type);
 
-enum tswSocket_type
-{
+enum tswSocket_type {
     TSW_SOCK_TCP          =  1,
     TSW_SOCK_UDP          =  2,
 };
