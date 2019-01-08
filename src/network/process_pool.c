@@ -36,7 +36,7 @@ int tswServer_create_worker(tswServer *serv, tswProcessPool *pool, int worker_id
     TSwooleWG.pipe_master = worker->pipe_master;
     TSwooleWG.pipe_worker = worker->pipe_worker;
     TSwooleWG.id = worker_id;
-	if (tswWorker_loop() < 0) {
+    if (tswWorker_loop() < 0) {
         tswWarn("%s", "tswWorker_loop error");
         return TSW_ERR;
     }
