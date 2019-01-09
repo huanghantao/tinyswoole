@@ -44,13 +44,14 @@ tswServer *tswServer_new(void);
 int tswServer_start(tswServer *serv);
 int tswServer_master_loop(tswServer *serv, int listenfd);
 int tswServer_master_onAccept(tswReactor *reactor, tswEvent *tswev);
+int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev);
 void tswServer_master_onStart(void);
+void tswServer_reactor_onStart(int reactor_id);
 
 int tswReactorThread_create(tswServer *serv);
 int tswReactorThread_start(tswServer *serv);
-void tswServer_reactor_onStart(int reactor_id);
-int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev);
-int tswReactor_onPipeReceive(tswReactor *reactor, tswEvent *tswev);
+int tswReactorThread_sendToWorker(tswServer *serv, tswEventData *event_data, int worker_id);
+int tswReactorThread_onPipeReceive(tswReactor *reactor, tswEvent *tswev);
 
 int tswServer_tcp_send(tswServer *serv, int fd, const void *data, size_t length);
 

@@ -2,6 +2,7 @@
 #include "log.h"
 #include "server.h"
 #include "tinyswoole.h"
+#include "process_pool.h"
 
 static int tswReactorThread_loop(tswThreadParam *param)
 {
@@ -76,6 +77,45 @@ int tswReactorThread_start(tswServer *serv)
             tswWarn("%s", "pthread_create error");
         }
         thread->thread_id = pidt;
+    }
+
+    return TSW_OK;
+}
+
+int tswReactorThread_sendToWorker(tswServer *serv, tswEventData *event_data, int worker_id)
+{
+    int pipe_master;
+    tswReactor *reactor;
+
+    pipe_master = serv->process_pool->workers[worker_id].pipe_master;
+    write(pipe_master, (void *)event_data, sizeof(event_data->info) + event_data->info.len);
+
+    reactor = &(serv->reactor_threads[event_data->info.from_id].reactor);
+    if (reactor->add(reactor, pipe_master, TSW_EVENT_READ, tswReactorThread_onPipeReceive) < 0) {
+        tswWarn("%s", "reactor add error");
+        return TSW_ERR;
+    }
+
+    return TSW_OK;
+}
+
+int tswReactorThread_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
+{
+    int n;
+    int session_id;
+    int connfd;
+    tswEventData event_data;
+    tswSession *session;
+
+    // tswev->fd represents the fd of the pipe
+    n = read(tswev->fd, &event_data, sizeof(event_data));
+    session_id = event_data.info.fd;
+    session = &(TSwooleG.serv->session_list[session_id]);
+
+    send(session->connfd, event_data.data, event_data.info.len, 0);
+    if (reactor->del(reactor, tswev->fd) < 0) {
+        tswWarn("%s", "reactor del error");
+        return TSW_ERR;
     }
 
     return TSW_OK;

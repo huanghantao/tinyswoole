@@ -222,11 +222,8 @@ int tswServer_reactor_onReceive(tswReactor *reactor, tswEvent *tswev)
     event_data.info.fd = TSwooleG.serv->connection_list[tswev->fd].session_id;
     worker_id = tswev->fd % TSwooleG.serv->process_pool->worker_num;
 
-    pipe_master = TSwooleG.serv->process_pool->workers[worker_id].pipe_master;
-    write(pipe_master, (void *)&event_data, sizeof(event_data.info) + event_data.info.len);
-
-    if (reactor->add(reactor, pipe_master, TSW_EVENT_READ, tswReactor_onPipeReceive) < 0) {
-        tswWarn("%s", "reactor add error");
+    if (tswReactorThread_sendToWorker(TSwooleG.serv, &event_data, worker_id) < 0) {
+        tswWarn("%s", "tswReactorThread_sendToWorker error");
         return TSW_ERR;
     }
 
@@ -241,28 +238,6 @@ void tswServer_master_onStart(void)
 void tswServer_reactor_onStart(int reactor_id)
 {
     tswDebug("reactor thread [%d] started successfully", reactor_id);
-}
-
-int tswReactor_onPipeReceive(tswReactor *reactor, tswEvent *tswev)
-{
-    int n;
-    int session_id;
-    int connfd;
-    tswEventData event_data;
-    tswSession *session;
-
-    // tswev->fd represents the fd of the pipe
-    n = read(tswev->fd, &event_data, sizeof(event_data));
-    session_id = event_data.info.fd;
-    session = &(TSwooleG.serv->session_list[session_id]);
-
-    send(session->connfd, event_data.data, event_data.info.len, 0);
-    if (reactor->del(reactor, tswev->fd) < 0) {
-        tswWarn("%s", "reactor del error");
-        return TSW_ERR;
-    }
-
-    return TSW_OK;
 }
 
 /*
